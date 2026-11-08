@@ -1,9 +1,10 @@
-"""Write and sign attestation.json. Usage: attest.py LOG OUT STARTED ENDED EXIT ALLOWLIST -- cmd..."""
+"""Write and sign a DSSE / in-toto attestation (attest-spec v1, *.dsse.json). Usage: attest.py LOG OUT STARTED ENDED EXIT ALLOWLIST -- cmd..."""
 
 import base64
 import hashlib
 import json
 import os
+import platform
 import sys
 
 from cryptography.hazmat.primitives import serialization
@@ -52,26 +53,46 @@ key = load_key()
 pub = key.public_key().public_bytes(
     serialization.Encoding.Raw, serialization.PublicFormat.Raw
 )
-payload = {
-    "version": "stillherd-silent-1",
+PT = "application/vnd.in-toto+json"
+PRED = "https://ripplarity.com/attestation/stillherd/silent/v1"
+
+
+def pae(t: bytes, payload: bytes) -> bytes:
+    return b"DSSEv1 %d %s %d %s" % (len(t), t, len(payload), payload)
+
+
+def make_envelope(statement, priv):
+    payload = json.dumps(statement, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("utf-8")
+    raw = priv.public_key().public_bytes(serialization.Encoding.Raw, serialization.PublicFormat.Raw)
+    sig = priv.sign(pae(PT.encode(), payload))
+    return {
+        "payloadType": PT,
+        "payload": base64.b64encode(payload).decode(),
+        "signatures": [{"keyid": hashlib.sha256(raw).hexdigest(), "sig": base64.b64encode(sig).decode()}],
+    }
+
+
+log_bytes = open(log, "rb").read() if os.path.exists(log) else b""
+predicate = {
+    "producer": {"tool": "stillherd-silent", "version": "1"},
     "started": started,
     "ended": ended,
+    "environment": {"host_os": platform.system() or "unknown", "run_mode": os.environ.get("SILENT_RUN_MODE", "REAL")},
     "cmd": cmd,
     "exit_code": int(exit_code),
     "allowlist": sorted(allowset),
     "external_attempts": attempts,
     "external_bytes_sent": forwarded_external,
     "blocked_request_bytes": blocked_bytes,
-    "log_file": os.path.basename(log),
-    "log_sha256": hashlib.sha256(open(log, "rb").read()).hexdigest()
-    if os.path.exists(log)
-    else "",
-    "pubkey": base64.b64encode(pub).decode(),
-    "pubkey_sha256": hashlib.sha256(pub).hexdigest(),
+    "pubkey_hex": pub.hex(),
 }
-canon = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
-payload["signature"] = base64.b64encode(key.sign(canon)).decode()
-json.dump(payload, open(out, "w"), indent=2)
+statement = {
+    "_type": "https://in-toto.io/Statement/v1",
+    "subject": [{"name": os.path.basename(log), "digest": {"sha256": hashlib.sha256(log_bytes).hexdigest()}}],
+    "predicateType": PRED,
+    "predicate": predicate,
+}
+json.dump(make_envelope(statement, key), open(out, "w"), indent=2)
 print(
-    f"attestation: {out} attempts={len(attempts)} external_bytes_sent={forwarded_external} pubkey_sha256={payload['pubkey_sha256'][:16]}"
+    f"attestation: {out} attempts={len(attempts)} external_bytes_sent={forwarded_external} keyid={hashlib.sha256(pub).hexdigest()[:16]}"
 )

@@ -11,3 +11,4 @@ attestation.json -text
 silent.log.jsonl -text
 hosts.txt -text
 receipt_*.json -text
+*.dsse.json -text

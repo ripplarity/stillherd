@@ -41,10 +41,10 @@ git clone https://github.com/ripplarity/stillherd.git && cd stillherd
 bash install.sh /path/to/your/project          # hooks + the stillherd CLI into .claude/
 /path/to/your/project/.claude/bin/stillherd status # leases, ledger, orphans, claims on one screen
 
-# run any agent command with only localhost allowed, and get a signed receipt
+# run any agent command with only localhost allowed, and get a signed attestation
 OLLAMA_API_BASE=http://127.0.0.1:11434 bash silent/silent.sh \
   aider --model ollama_chat/qwen2.5-coder:7b --message "say hi" --yes-always --no-git
-bash silent/verify.sh attestation.json          # prints OK, or which check failed (signature, key fingerprint, log hash)
+bash silent/verify.sh attestation.dsse.json     # prints OK, or which check failed (signature, keyid pin, log hash)
 ```
 
 Requirements: bash, python3, git. `silent.sh` needs `mitmdump` on PATH (`uv tool install mitmproxy`, or `pip install --user mitmproxy`); `egress/run_tool.sh` installs it itself the same way if missing. Docker is needed only for `selfhost/` and `exitkits/`.
@@ -75,9 +75,9 @@ The figures below come from the maintainer's own incident log on one shared work
 - **Kill-tree is death.** When a process ends, everything it spawned ends with it, leaves first.
 - **Silence is signed.** A run's network behaviour is a signed artefact, not a policy page.
 
-## Verifying a receipt
+## Verifying an attestation
 
-`verify.sh` recomputes the log hash and checks the ed25519 signature with the public key embedded in the attestation. To pin instead of trusting the embedded key, compare `pubkey_sha256` with the maintainer fingerprint published in [silent/README.md](silent/README.md). Attestations from other installs carry their own keys. Attestation format ids written before v0.2 read `corral-silent-1`; new runs write `stillherd-silent-1`. Signed files are stored byte-exact (`.gitattributes`), so a fresh clone verifies.
+An attestation is a signed statement (DSSE envelope, in-toto Statement v1). `silent/verify.sh` checks the ed25519 signature and the subject log hash, and trusts only a key whose keyid matches the pin: the maintainer keyid published in [silent/README.md](silent/README.md), or one you pass as the second argument. Attestations written before the shared format (`corral-silent-1`, `stillherd-silent-1`) are still verified and reported as "legacy format". A receipt means a transparency-log inclusion proof only; Rekor anchoring is OFF and founder-gated. Signed files are stored byte-exact (`.gitattributes`), so a fresh clone verifies.
 
 ## What Stillherd never does
 

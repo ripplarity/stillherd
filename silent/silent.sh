@@ -10,7 +10,7 @@ PY=python3; command -v python3 >/dev/null 2>&1 || PY=python
 command -v mitmdump >/dev/null 2>&1 || { echo "mitmdump not found (uv tool install mitmproxy)" >&2; exit 1; }
 OUT="${SILENT_OUT:-$PWD}"; PORT="${SILENT_PORT:-8090}"
 native() { if command -v cygpath >/dev/null 2>&1; then cygpath -m "$1"; else printf '%s' "$1"; fi; }
-LOG="$OUT/${SILENT_LOGNAME:-silent.log.jsonl}"; ATT="$OUT/${SILENT_ATTNAME:-attestation.json}"
+LOG="$OUT/${SILENT_LOGNAME:-silent.log.jsonl}"; ATT="$OUT/${SILENT_ATTNAME:-attestation.dsse.json}"
 : > "$LOG"
 ALLOW="127.0.0.1,localhost,::1${SILENT_ALLOW_EXTRA:+,$SILENT_ALLOW_EXTRA}"
 CA="$HOME/.mitmproxy/mitmproxy-ca-cert.pem"
