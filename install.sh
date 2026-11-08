@@ -11,6 +11,7 @@ command -v "$PY" >/dev/null 2>&1 || { echo "python3 is required (apt install pyt
 mkdir -p "$H" "$TARGET/.claude/bin"
 find "$HERE/vendor/hooks" -maxdepth 1 -type f -exec cp {} "$H"/ \;
 cp "$HERE/stillherd" "$TARGET/.claude/bin/stillherd"; chmod +x "$TARGET/.claude/bin/stillherd"
+cp "$HERE/bin/today.py" "$HERE/silent/dsse.py" "$TARGET/.claude/bin/"
 chmod +x "$H"/*.sh 2>/dev/null || true
 "$PY" "$HERE/merge_settings.py" "$TARGET/.claude/settings.json" "$PY"
 echo "stillherd 0.1.0 installed to $TARGET/.claude"

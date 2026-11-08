@@ -3,7 +3,8 @@
 
 Usage: python attest_verify.py <envelope.dsse.json> --key <hex pubkey | keys.json>
                                [--check-subjects DIR] [--expect-keyid HEX]
-Exit: 0 valid, 2 bad signature/envelope, 3 subject digest mismatch,
+                               [--check-anchors [--rekor-key PEM]]
+Exit: 0 valid, 6 anchor failure (--check-anchors), 2 bad signature/envelope, 3 subject digest mismatch,
       4 malformed statement or missing mandatory fields, 5 unknown predicateType
       (after printing VALID-SIGNATURE). No network access. Deps: stdlib + cryptography.
 """
@@ -28,6 +29,7 @@ KNOWN = {
     BASE + "dejaspawn/mirror/v1",
     BASE + "nukekit/mirror/v1",  # deprecated alias of dejaspawn/mirror/v1; still known
     BASE + "stillherd/silent/v1",
+    BASE + "stillherd/day/v1",
 }
 RUN_MODES = {"REAL", "MOCK", "FIXTURE", "DRY-RUN"}
 
@@ -88,7 +90,117 @@ def main(argv=None) -> int:
     ap.add_argument(
         "--expect-keyid", metavar="HEX", help="pin: signing key must have this keyid"
     )
+    ap.add_argument("--check-anchors", action="store_true", help="verify embedded Rekor anchors offline")
+    ap.add_argument("--rekor-key", metavar="PEM", help="pinned Rekor public key (default: rekor.pub beside this script)")
+    ap.add_argument("--online", action="store_true", help="reserved: freshness check against Rekor (not implemented)")
     a = ap.parse_args(argv)
+    if a.online:
+        print("--online is not implemented in this release", file=sys.stderr)
+        return 2
+    rc = _verify(a)
+    if a.check_anchors and rc in (0, 5):
+        arc = check_anchors(a)
+        if arc:
+            return arc
+    return rc
+
+
+# ---- offline Rekor anchor verification (SPEC section 8); no network ----
+def envelope_digest(env: dict) -> str:
+    """sha256 over canonical JSON of the envelope with `anchors` removed."""
+    core = {k: v for k, v in env.items() if k != "anchors"}
+    return hashlib.sha256(
+        json.dumps(core, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("utf-8")
+    ).hexdigest()
+
+
+def _h(b: bytes) -> bytes:
+    return hashlib.sha256(b).digest()
+
+
+def verify_inclusion(index: int, size: int, leaf_hash: bytes, proof: list, root: bytes) -> bool:
+    """RFC 6962 / RFC 9162 section 2.1.3.2 inclusion proof check."""
+    if index < 0 or index >= size:
+        return False
+    fn, sn, r = index, size - 1, leaf_hash
+    for p in proof:
+        if sn == 0:
+            return False
+        if fn & 1 or fn == sn:
+            r = _h(b"\x01" + p + r)
+            if not fn & 1:
+                while not fn & 1 and fn != 0:
+                    fn >>= 1
+                    sn >>= 1
+        else:
+            r = _h(b"\x01" + r + p)
+        fn >>= 1
+        sn >>= 1
+    return sn == 0 and r == root
+
+
+def _check_one_anchor(env: dict, an: dict, rekor_pem: bytes) -> str:
+    """Return "" if the anchor verifies, else a reason."""
+    from cryptography.hazmat.primitives import hashes, serialization
+    from cryptography.hazmat.primitives.asymmetric import ec
+
+    digest = envelope_digest(env)
+    body = base64.b64decode(an["body"], validate=True)
+    spec = json.loads(body)
+    if spec.get("kind") != "hashedrekord" or spec["spec"]["data"]["hash"]["value"] != digest:
+        return "anchored digest does not match this envelope"
+    pem = base64.b64decode(spec["spec"]["signature"]["publicKey"]["content"])
+    ed = serialization.load_pem_public_key(pem)
+    ed.verify(base64.b64decode(spec["spec"]["signature"]["content"]), bytes.fromhex(digest))
+    pr = an["inclusionProof"]
+    leaf = _h(b"\x00" + body)
+    ok = verify_inclusion(
+        int(pr["logIndex"]), int(pr["treeSize"]), leaf,
+        [bytes.fromhex(x) for x in pr["hashes"]], bytes.fromhex(pr["rootHash"]),
+    )
+    if not ok:
+        return "inclusion proof does not reach the root"
+    cp = pr.get("checkpoint")
+    if cp:
+        lines = cp.split("\n")
+        if len(lines) < 3 or int(lines[1]) != int(pr["treeSize"]) or base64.b64decode(lines[2]).hex() != pr["rootHash"]:
+            return "checkpoint disagrees with inclusion proof"
+    set_payload = json.dumps(
+        {"body": an["body"], "integratedTime": int(an["integratedTime"]),
+         "logID": an["logID"], "logIndex": int(an["logIndex"])},
+        sort_keys=True, separators=(",", ":"),
+    ).encode()
+    rk = serialization.load_pem_public_key(rekor_pem)
+    rk.verify(base64.b64decode(an["signedEntryTimestamp"]), set_payload, ec.ECDSA(hashes.SHA256()))
+    return ""
+
+
+def check_anchors(a) -> int:
+    """0 ok or no anchors; 6 on any anchor failure."""
+    env = json.load(open(a.envelope, encoding="utf-8"))
+    anchors = env.get("anchors") or []
+    if not anchors:
+        print("NO-ANCHORS")
+        return 0
+    kp = a.rekor_key or os.path.join(os.path.dirname(os.path.abspath(__file__)), "rekor.pub")
+    if not os.path.isfile(kp):
+        print("ANCHOR-FAIL: no pinned Rekor public key (--rekor-key)", file=sys.stderr)
+        return 6
+    pem = open(kp, "rb").read()
+    print("rekor key sha256:", hashlib.sha256(pem).hexdigest())
+    for i, an in enumerate(anchors):
+        try:
+            why = _check_one_anchor(env, an, pem)
+        except Exception as e:  # any parse/verify error is an anchor failure
+            why = f"{type(e).__name__}: {e}"
+        if why:
+            print(f"ANCHOR-FAIL[{i}]: {why}", file=sys.stderr)
+            return 6
+    print(f"ANCHORS-OK {len(anchors)}")
+    return 0
+
+
+def _verify(a) -> int:
     try:
         env = json.load(open(a.envelope, encoding="utf-8"))
         if env["payloadType"] != PAYLOAD_TYPE:

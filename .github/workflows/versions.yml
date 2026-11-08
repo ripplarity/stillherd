@@ -1,0 +1,35 @@
+name: versions
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check latest tool versions (no harness, no secrets, no login)
+        run: bash egress/watch_versions.sh | tee versions.out
+      - name: Open or update one issue per new version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          grep '^NEW ' versions.out | while read -r _ tool old _ new; do
+            title="New tool version: $tool $old -> $new"
+            body=$(printf '%s\n' \
+              "Upstream published $tool $new (recorded: $old)." "" \
+              "Run checklist (on the maintainer machine; the harness never runs in CI):" \
+              "- [ ] bash egress/watch_versions.sh --run   (or the tool's own script in egress/)" \
+              "- [ ] python egress/diff_runs.py <old run> <new run> and read the diff" \
+              "- [ ] commit egress/results/ and update versions.json" \
+              "- [ ] close this issue")
+            existing=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "\"New tool version: $tool\" in:title" --json number --jq '.[0].number // empty')
+            if [ -n "$existing" ]; then
+              gh issue edit "$existing" --repo "$GITHUB_REPOSITORY" --title "$title" --body "$body"
+            else
+              gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body "$body"
+            fi
+          done || true

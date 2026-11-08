@@ -20,7 +20,10 @@ echo tamper >> "$T/silent.log.jsonl"
 bash "$HERE/silent/verify.sh" "$T/a.dsse.json" "$KID" >/dev/null 2>&1 && bad "tampered log accepted" || ok "tampered subject rejected"
 SPEC="$HERE/../attest-spec/attest_verify.py"
 if [ -f "$SPEC" ]; then
-  [ "$(sha256sum < "$SPEC")" = "$(sha256sum < "$HERE/silent/attest_verify.py")" ] && ok "verifier byte-identical to spec" || bad "verifier differs from spec"
+  # compare against the spec's COMMITTED verifier, not its working copy (which may be mid-edit)
+  SPEC_SHA="$(git -C "$HERE/../attest-spec" show HEAD:attest_verify.py 2>/dev/null | sha256sum)"
+  [ -n "$SPEC_SHA" ] || SPEC_SHA="$(sha256sum < "$SPEC")"
+  [ "$SPEC_SHA" = "$(sha256sum < "$HERE/silent/attest_verify.py")" ] && ok "verifier byte-identical to spec (committed)" || bad "verifier differs from spec (committed)"
 else
   echo "skip: spec repo not present beside this checkout (verifier identity check not run)"
 fi
