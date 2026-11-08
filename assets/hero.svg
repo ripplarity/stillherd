@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="880" height="350" viewBox="0 0 880 350" role="img" aria-label="Egress table: requests and telemetry hosts for aider, Claude Code with and without the telemetry opt-out, goose and opencode; then a signed attestation verifies OK">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2A1B6E"/><stop offset=".55" stop-color="#14306B"/><stop offset="1" stop-color="#0B4A55"/></linearGradient>
+  </defs>
+  <style>
+    .t{font:14px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;fill:#E6ECF5}
+    .h{fill:#FFD166;font-weight:700}.p{fill:#7DFFD4}.ok{fill:#5BE3AE;font-weight:700}.dim{fill:#A3AEC4}.hot{fill:#FF6FB5}
+  </style>
+  <rect width="880" height="350" rx="16" fill="url(#g)"/>
+  <circle cx="26" cy="24" r="6" fill="#FF5F57"/><circle cx="46" cy="24" r="6" fill="#FEBC2E"/><circle cx="66" cy="24" r="6" fill="#28C840"/>
+  <text x="440" y="29" text-anchor="middle" class="t dim">egress/results/WEEK1_TABLE.md  (run 1, same scripted session)</text>
+  <text x="28" y="70" class="t h">tool          version          requests  telemetry host</text>
+  <text x="28" y="98" class="t">aider         0.86.2               28    none</text>
+  <text x="28" y="124" class="t">claude-code   2.1.304              58    <tspan class="hot">http-intake.logs.us5.datadoghq.com</tspan></text>
+  <text x="28" y="150" class="t">claude-code   2.1.304 (opt-out)    13    none</text>
+  <text x="28" y="176" class="t">goose         1.57.0               12    none</text>
+  <text x="28" y="202" class="t">opencode      1.19.5               89    none</text>
+  <text x="28" y="252" class="t"><tspan class="p">$</tspan> bash silent/verify.sh exitkits/postman-to-hoppscotch/results/attestation.json</text>
+  <text x="28" y="280" class="t ok">OK <tspan class="dim">(legacy format)</tspan></text>
+  <text x="852" y="330" text-anchor="end" class="t dim">opt-out = DISABLE_TELEMETRY=1 and CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1</text>
+</svg>

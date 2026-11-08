@@ -2,15 +2,25 @@
   <img src="assets/logo.svg" width="112" alt="Stillherd logo: a pen holding a terminal prompt and a pause sign, with a check mark">
 </p>
 
-<h1 align="center">Stillherd</h1>
+<h1 align="center">Stillherd: a quiet, provable agent fleet</h1>
+
+<p align="center">
+  <b>Run fleets of coding agents that cannot wreck each other, and prove what they sent out.</b><br>
+  Guardrails on the default path, allowlisted silent runs, and a signed attestation of every byte that left.
+</p>
 
 <p align="center">
   <img src="assets/badges.svg" alt="bash and python3 · coding-agent hooks · DSSE ed25519-signed attestations · Apache-2.0">
 </p>
 
 <p align="center">
-  <b>Run fleets of coding agents that cannot wreck each other, and prove what they sent out.</b><br>
-  Guardrails on the default path, allowlisted silent runs, and a signed attestation of every byte that left.
+  <a href="#1-sixty-seconds">Quick start</a> · <a href="#2-what-you-get">What you get</a> · <a href="#3-evidence">Evidence</a> · <a href="#faq">FAQ</a>
+</p>
+
+<p align="center"><code>bash install.sh /path/to/your/project</code></p>
+
+<p align="center">
+  <img src="assets/hero.svg" width="880" alt="Egress table from egress/results/WEEK1_TABLE.md: of five tool runs, only Claude Code 2.1.304 contacted a telemetry host (Datadog log intake), and with the telemetry opt-out it did not; then a signed attestation verifies OK">
 </p>
 
 <table align="center">
@@ -129,6 +139,23 @@ An attestation is a signed statement: a DSSE envelope over an in-toto Statement 
 | `selfhost/` | Compose recipes and boot attestations |
 | `exitkits/` | Data migration into a self-hosted replacement, attested |
 | `tests/` | Guard tests (run on a distro without node) |
+
+## FAQ
+
+**Does it read my prompts or code?**
+No. The egress logs keep host, path, method and byte counts only. Request and response bodies are never stored, and query strings and ids are redacted.
+
+**Which agents does it work with?**
+`silent/silent.sh` wraps any command: any agent, any model server. The guardrails install as coding-agent hooks into a project's `.claude/` settings.
+
+**What does the Datadog row in the egress table mean?**
+That host received log requests during the scripted session; the table records hosts and byte counts, not contents. With `DISABLE_TELEMETRY=1` and `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` set, one run made no requests to it.
+
+**What does it cost?**
+Nothing. It is Apache-2.0, runs locally, and needs bash, python3 and git (plus `mitmdump` for silent runs, and Docker only for `selfhost/` and `exitkits/`).
+
+**Where has it been tested?**
+The guard tests and installer run on a fresh Ubuntu 24.04 distro; see [D5_CLEANRUN.md](D5_CLEANRUN.md).
 
 ---
 
