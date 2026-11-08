@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo.svg" width="128" height="128" alt="Stillherd logo: a ring of fence posts around three agents, with a check mark">
+  <img src="assets/logo.svg" width="128" height="128" alt="Stillherd logo: a pen holding a terminal prompt and a pause sign, with a check mark">
 </p>
 
 <h1 align="center">Stillherd</h1>
