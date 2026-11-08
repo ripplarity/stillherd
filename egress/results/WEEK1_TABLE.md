@@ -4,6 +4,7 @@
 |---|---|---|---|---|---|---|---|
 | aider | 0.86.2 | pypi.org, raw.githubusercontent.com | 28/28 | 24547/27025 | n/a/n/a | pypi.org: R2 update-check (1/1); raw.githubusercontent.com: R4 asset (5/5); local Ollama host: (22/22) | none |
 | claude-code | 2.1.304 | api.anthropic.com, http-intake.logs.us5.datadoghq.com | 58/56 | 2664308/2614444 | n/a/n/a | api.anthropic.com: R3 model-call, R5 unknown (51/50); http-intake.logs.us5.datadoghq.com: R1 telemetry (7/6); local Ollama host: (0/0) | http-intake.logs.us5.datadoghq.com |
+| claude-code | 2.1.304_optout | api.anthropic.com | 13/0 | 927062/0 | n/a/n/a | api.anthropic.com: R3 model-call, R5 unknown (13/0); local Ollama host: (0/0) | none |
 | goose | 1.57.0 | models.dev | 12/12 | 72372/77886 | 4/4 | models.dev: R4 asset (4/4); local Ollama host: (8/8) | none |
 | opencode | 1.19.5 | models.opencode.ai, registry.npmjs.org | 89/10 | 128205/127745 | 4/4 | models.opencode.ai: R4 asset (1/1); registry.npmjs.org: R2b package-registry (83/4); local Ollama host: (5/5) | none |
 
@@ -17,6 +18,9 @@
 - claude-code 2.1.304 sent 7 requests (run 1) and 6 requests (run 2) to http-intake.logs.us5.datadoghq.com; rule(s): R1 telemetry.
 - claude-code 2.1.304 sent 0 requests (run 1) and 0 requests (run 2) to the local Ollama host.
 - claude-code 2.1.304 external host sets in run 1 and run 2: identical.
+- claude-code 2.1.304_optout sent 13 requests (run 1) and 0 requests (run 2) to api.anthropic.com; rule(s): R3 model-call, R5 unknown.
+- claude-code 2.1.304_optout sent 0 requests (run 1) and 0 requests (run 2) to the local Ollama host.
+- claude-code 2.1.304_optout external host sets in run 1 and run 2: different (api.anthropic.com).
 - goose 1.57.0 sent 4 requests (run 1) and 4 requests (run 2) to models.dev; rule(s): R4 asset.
 - goose 1.57.0 sent 8 requests (run 1) and 8 requests (run 2) to the local Ollama host.
 - goose 1.57.0 external host sets in run 1 and run 2: identical.

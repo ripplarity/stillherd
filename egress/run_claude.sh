@@ -31,6 +31,7 @@ for n in 1 2; do
     echo "TURN $i rc=$rc out_bytes=$(wc -c < "$W/turn$i.out")" >> "$HERE/results/sessions/claude-code_run$n.turns.txt"
   done < "$HERE/session.txt"
   sleep 3; kill $MPID 2>/dev/null; sleep 2
+  (python3 "$HERE/redact.py" "$OUT" 2>/dev/null || python "$HERE/redact.py" "$OUT")  # strip query strings and ids before anything else reads the log
   echo "run$n rows=$(wc -l < "$OUT")"
   rm -rf "$W"
 done

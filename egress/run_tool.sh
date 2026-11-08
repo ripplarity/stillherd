@@ -15,7 +15,7 @@ export EGRESS_TOOL=opencode EGRESS_VERSION="$VERSION" EGRESS_OUT="$HERE/requests
 PORT=8080
 mitmdump --listen-host 127.0.0.1 --listen-port $PORT -q -s "$HERE/log_requests.py" &
 MPID=$!
-trap 'kill $MPID 2>/dev/null' EXIT
+trap 'kill $MPID 2>/dev/null; (python3 "$HERE/redact.py" "$HERE/requests.jsonl" 2>/dev/null || python "$HERE/redact.py" "$HERE/requests.jsonl")' EXIT
 CA="$HOME/.mitmproxy/mitmproxy-ca-cert.pem"
 for i in $(seq 1 30); do [ -f "$CA" ] && (echo > /dev/tcp/127.0.0.1/$PORT) 2>/dev/null && break; sleep 1; done
 export HTTP_PROXY="http://127.0.0.1:$PORT" HTTPS_PROXY="http://127.0.0.1:$PORT"

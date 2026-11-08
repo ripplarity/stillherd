@@ -1,0 +1,13 @@
+{"ts": 1794157874.0643556, "tool": "claude-code", "version": "2.1.304", "host": "api.anthropic.com", "path": "/v1/mcp_servers", "method": "GET", "bytes": 0, "content_type": "application/json"}
+{"ts": 1794157874.1335282, "tool": "claude-code", "version": "2.1.304", "host": "api.anthropic.com", "path": "/v1/messages", "method": "POST", "bytes": 98893, "content_type": "application/json"}
+{"ts": 1794157878.548586, "tool": "claude-code", "version": "2.1.304", "host": "api.anthropic.com", "path": "/v1/messages", "method": "POST", "bytes": 99585, "content_type": "application/json"}
+{"ts": 1794157881.0239823, "tool": "claude-code", "version": "2.1.304", "host": "api.anthropic.com", "path": "/v1/messages", "method": "POST", "bytes": 100021, "content_type": "application/json"}
+{"ts": 1794157885.6012812, "tool": "claude-code", "version": "2.1.304", "host": "api.anthropic.com", "path": "/v1/mcp_servers", "method": "GET", "bytes": 0, "content_type": "application/json"}
+{"ts": 1794157885.665346, "tool": "claude-code", "version": "2.1.304", "host": "api.anthropic.com", "path": "/v1/messages", "method": "POST", "bytes": 101761, "content_type": "application/json"}
+{"ts": 1794157888.386824, "tool": "claude-code", "version": "2.1.304", "host": "api.anthropic.com", "path": "/v1/messages", "method": "POST", "bytes": 103329, "content_type": "application/json"}
+{"ts": 1794157892.512767, "tool": "claude-code", "version": "2.1.304", "host": "api.anthropic.com", "path": "/v1/messages", "method": "POST", "bytes": 104389, "content_type": "application/json"}
+{"ts": 1794157896.765554, "tool": "claude-code", "version": "2.1.304", "host": "api.anthropic.com", "path": "/v1/mcp_servers", "method": "GET", "bytes": 0, "content_type": "application/json"}
+{"ts": 1794157896.7859988, "tool": "claude-code", "version": "2.1.304", "host": "api.anthropic.com", "path": "/v1/messages", "method": "POST", "bytes": 104967, "content_type": "application/json"}
+{"ts": 1794157902.4644308, "tool": "claude-code", "version": "2.1.304", "host": "api.anthropic.com", "path": "/v1/messages", "method": "POST", "bytes": 106109, "content_type": "application/json"}
+{"ts": 1794157906.6676123, "tool": "claude-code", "version": "2.1.304", "host": "api.anthropic.com", "path": "/v1/mcp_servers", "method": "GET", "bytes": 0, "content_type": "application/json"}
+{"ts": 1794157906.728807, "tool": "claude-code", "version": "2.1.304", "host": "api.anthropic.com", "path": "/v1/messages", "method": "POST", "bytes": 108008, "content_type": "application/json"}
