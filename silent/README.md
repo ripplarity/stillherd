@@ -1,4 +1,4 @@
-# corral silent
+# Stillherd silent
 
 Run any coding-agent command with only a local allowlist, block and log everything else, and emit a signed attestation.
 
@@ -25,3 +25,5 @@ Does not prove:
 
 ## Verifying against a pinned key
 verify.sh checks the signature with the public key embedded in each attestation. To pin instead of trust-on-first-use, compare the attestation's pubkey_sha256 with this maintainer key fingerprint: `df051692c8467ca1eceb62d03333a02928bcb1a7ab42133efa2e2ef4287d1c42`. Attestations produced by other installs carry their own keys.
+
+Attestation `version` ids written before the rename read `corral-silent-1`; new runs write `stillherd-silent-1`. `verify.sh` checks signatures and hashes and does not depend on the id.

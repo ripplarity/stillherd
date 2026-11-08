@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# corral: one-screen status. Usage: corral status
+# stillherd: one-screen status. Usage: stillherd status
 HOOKS="$(cd "$(dirname "$0")/../hooks" 2>/dev/null && pwd)"
 PY=python3; command -v python3 >/dev/null 2>&1 || PY=python
 section() {  # title, script, args...
@@ -12,12 +12,12 @@ section() {  # title, script, args...
 }
 case "${1:-status}" in
   status)
-    echo "corral status"
+    echo "stillherd status"
     section "CPU leases" cpu_lease.py status
     section "GPU lease" gpu_lease.py status
     section "Ledger (running)" activity_ledger.py list
     section "Orphan candidates" proc_tree.py orphans
     ;;
-  *) echo "usage: corral status" >&2; exit 2 ;;
+  *) echo "usage: stillherd status" >&2; exit 2 ;;
 esac
 exit 0

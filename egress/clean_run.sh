@@ -7,7 +7,7 @@ set -u
 HERE="$(cd "$(dirname "$0")" && pwd)"
 PY=python3; command -v python3 >/dev/null 2>&1 || PY=python
 export MSYS_NO_PATHCONV=1
-D=corral-clean
+D=stillherd-clean
 TOOLS="${TOOLS:-opencode goose}"
 W() { wsl.exe -d $D -u root --exec "$@" 2>&1 | tr -d '\000'; }
 teardown() { [ "${KEEP:-0}" = 1 ] || wsl.exe --unregister $D 2>&1 | tr -d '\000'; }
@@ -18,8 +18,8 @@ if [ "${REUSE:-0}" != 1 ]; then
   wsl.exe --unregister $D >/dev/null 2>&1
   wsl.exe --import $D "$(cygpath -w "$HERE/data/distro")" "$(cygpath -w "$HERE/data/rootfs.tar.gz")" --version 2 2>&1 | tr -d '\000'
 fi
-W sh -c 'mkdir -p /opt/corral && cd "$(wslpath -a "$1")" && cp inner.sh log_requests.py session.txt opencode.json /opt/corral/' _ "$WIN" || exit 1
-[ "${REUSE:-0}" = 1 ] || W bash /opt/corral/inner.sh provision | tail -5
+W sh -c 'mkdir -p /opt/stillherd && cd "$(wslpath -a "$1")" && cp inner.sh log_requests.py session.txt opencode.json /opt/stillherd/' _ "$WIN" || exit 1
+[ "${REUSE:-0}" = 1 ] || W bash /opt/stillherd/inner.sh provision | tail -5
 HIP="$(W sh -c "ip route show default | awk '{print \$3}'" | head -1)"
 echo "host ip: $HIP"
 ok=0
@@ -30,7 +30,7 @@ done
 for tool in $TOOLS; do
   for n in 1 2; do
     echo "== $tool run$n"
-    out="$(W bash /opt/corral/inner.sh run $tool $n "$HIP")"
+    out="$(W bash /opt/stillherd/inner.sh run $tool $n "$HIP")"
     printf '%s\n' "$out" | tail -12
     ver="$(printf '%s\n' "$out" | grep -o 'VERSION=[^ ]*' | tail -1 | cut -d= -f2 | tr -c 'A-Za-z0-9.\n' '_')"
     W cat /tmp/res_${tool}_${n}.jsonl > "$HERE/results/${tool}_${ver:-unknown}_run${n}.jsonl"

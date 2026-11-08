@@ -24,5 +24,6 @@ add(
     None,
     (sys.argv[2] if len(sys.argv) > 2 else "python3") + " " + D + "claim_capture.py",
 )
-s["corral"] = {"version": "0.1.0"}
+s["stillherd"] = {"version": "0.1.0"}
+s.pop("corral", None)  # key used by releases before the rename
 json.dump(s, open(p, "w"), indent=2)

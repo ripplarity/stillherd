@@ -12,11 +12,11 @@ provision)
   ;;
 stranger)
   HIP=$2
-  cd /root && rm -rf corral proj .mitmproxy .corral .aider* && mkdir corral && tar xf /opt/d5/corral.tar -C corral || exit 1
-  cd /root/corral
+  cd /root && rm -rf stillherd proj .mitmproxy .stillherd .corral .aider* && mkdir stillherd && tar xf /opt/d5/stillherd.tar -C stillherd || exit 1
+  cd /root/stillherd
   step() { echo "\$ $1"; bash -c "$1" 2>&1 | tail -${2:-8} | cut -c1-200; echo "rc=${PIPESTATUS[0]}"; }
   step 'bash install.sh ~/proj'
-  step '~/proj/.claude/bin/corral status' 12
+  step '~/proj/.claude/bin/stillherd status' 12
   export OLLAMA_API_BASE="http://$HIP:11434" SILENT_ALLOW_EXTRA="$HIP"
   step 'bash silent/silent.sh aider --model ollama_chat/qwen2.5-coder:7b --message "say hi" --yes-always --no-git' 6
   step 'bash silent/verify.sh attestation.json'

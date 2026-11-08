@@ -39,7 +39,7 @@ def http_connect(flow: http.HTTPFlow):
             }
         )
         flow.response = http.Response.make(
-            403, b"blocked by corral silent", {"Content-Type": "text/plain"}
+            403, b"blocked by stillherd silent", {"Content-Type": "text/plain"}
         )
 
 
@@ -70,7 +70,7 @@ def request(flow: http.HTTPFlow):
             }
         )
         flow.response = http.Response.make(
-            403, b"blocked by corral silent", {"Content-Type": "text/plain"}
+            403, b"blocked by stillherd silent", {"Content-Type": "text/plain"}
         )
 
 

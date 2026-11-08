@@ -1,4 +1,4 @@
-# corral selfhost
+# Stillherd selfhost
 
 `bash selfhost.sh <saas>` brings up an open replacement for a SaaS and attests what it sent out during startup.
 

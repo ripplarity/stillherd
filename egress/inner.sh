@@ -31,13 +31,13 @@ run)
   esac
   export EGRESS_TOOL=$tool EGRESS_VERSION=$VER EGRESS_OUT=/tmp/res_${tool}_${n}.jsonl
   : > "$EGRESS_OUT"
-  /opt/mitm/bin/mitmdump --listen-host 127.0.0.1 --listen-port 8080 -q -s /opt/corral/log_requests.py >/tmp/mitm.log 2>&1 &
+  /opt/mitm/bin/mitmdump --listen-host 127.0.0.1 --listen-port 8080 -q -s /opt/stillherd/log_requests.py >/tmp/mitm.log 2>&1 &
   MP=$!
   for i in $(seq 1 30); do (echo > /dev/tcp/127.0.0.1/8080) 2>/dev/null && break; sleep 1; done
   export HTTP_PROXY=http://127.0.0.1:8080 HTTPS_PROXY=http://127.0.0.1:8080 http_proxy=http://127.0.0.1:8080 https_proxy=http://127.0.0.1:8080
   export NO_PROXY= no_proxy=
   export NODE_EXTRA_CA_CERTS=/root/.mitmproxy/mitmproxy-ca-cert.pem SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
-  sed "s#127.0.0.1:11434#$HIP:11434#" /opt/corral/opencode.json > /tmp/opencode.json
+  sed "s#127.0.0.1:11434#$HIP:11434#" /opt/stillherd/opencode.json > /tmp/opencode.json
   export OPENCODE_CONFIG=/tmp/opencode.json OLLAMA_API_BASE=http://$HIP:11434
   export GOOSE_PROVIDER=ollama GOOSE_MODEL=qwen2.5-coder:7b OLLAMA_HOST=http://$HIP:11434
   first=1; i=0; done_turns=0
@@ -53,13 +53,13 @@ run)
         timeout 200 /opt/aider/bin/aider --model ollama_chat/qwen2.5-coder:7b --message "$line" --yes-always --no-auto-commits --no-git $A calc.py test_calc.py > "$O" 2>&1 < /dev/null ;;
       goose)
         A=""; [ $first -eq 0 ] && A="--resume"
-        timeout 200 goose run --name corral$n $A -t "$line" > "$O" 2>&1 < /dev/null ;;
+        timeout 200 goose run --name stillherd$n $A -t "$line" > "$O" 2>&1 < /dev/null ;;
     esac
     rc=$?; first=0
     b=$(wc -c < "$O")
     [ $rc -eq 0 ] && [ "$b" -gt 100 ] && done_turns=$((done_turns+1))
     echo "TURN $i rc=$rc out_bytes=$b" >&2
-  done < /opt/corral/session.txt
+  done < /opt/stillherd/session.txt
   sleep 2; kill $MP 2>/dev/null; sleep 1
   echo "VERSION=$VER ROWS=$(wc -l < "$EGRESS_OUT") COMPLETED_TURNS=$done_turns"
   ;;

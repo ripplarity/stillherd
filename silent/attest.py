@@ -12,7 +12,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 log, out, started, ended, exit_code, allow = sys.argv[1:7]
 cmd = sys.argv[8:] if len(sys.argv) > 8 else []
 KEY = os.environ.get(
-    "SILENT_KEY", os.path.join(os.path.expanduser("~"), ".corral", "silent_ed25519.pem")
+    "SILENT_KEY", next((p for p in (os.path.join(os.path.expanduser("~"), ".stillherd", "silent_ed25519.pem"), os.path.join(os.path.expanduser("~"), ".corral", "silent_ed25519.pem")) if os.path.exists(p)), os.path.join(os.path.expanduser("~"), ".stillherd", "silent_ed25519.pem"))
 )
 
 
@@ -53,7 +53,7 @@ pub = key.public_key().public_bytes(
     serialization.Encoding.Raw, serialization.PublicFormat.Raw
 )
 payload = {
-    "version": "corral-silent-1",
+    "version": "stillherd-silent-1",
     "started": started,
     "ended": ended,
     "cmd": cmd,

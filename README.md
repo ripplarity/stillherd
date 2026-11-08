@@ -16,7 +16,7 @@
 
 | | You run | You get |
 |---|---|---|
-| **Guardrails** | `install.sh` into any project that uses Claude Code hooks | Kill-tree, CPU and GPU leases, a stash ban, and claim receipts, enforced by hooks on the default path. The CLI is `corral status`. |
+| **Guardrails** | `install.sh` into any project that uses Claude Code hooks | Kill-tree, CPU and GPU leases, a stash ban, and claim receipts, enforced by hooks on the default path. The CLI is `stillherd status`. |
 | **Silent runs** | `silent/silent.sh aider ...` (any agent, any model server) | Every host except your local allowlist is refused, every attempt is logged, and the run ends with an ed25519-signed attestation of hosts contacted and bytes sent. |
 | **Receipts for leaving SaaS** | `selfhost/selfhost.sh postman`, `exitkits/postman-to-hoppscotch/kit.sh` | An open replacement boots, your data is imported, and the whole window is attested. |
 | **Egress tables** | `egress/run_tool.sh` | A reproducible record of what a named AI coding tool sends out during a fixed scripted session. |
@@ -38,8 +38,8 @@ What the tables do not say: a tool that contacted no telemetry host in a ten-min
 
 ```bash
 git clone https://github.com/ripplarity/stillherd.git && cd stillherd
-bash install.sh /path/to/your/project          # hooks + the corral CLI into .claude/
-/path/to/your/project/.claude/bin/corral status # leases, ledger, orphans, claims on one screen
+bash install.sh /path/to/your/project          # hooks + the stillherd CLI into .claude/
+/path/to/your/project/.claude/bin/stillherd status # leases, ledger, orphans, claims on one screen
 
 # run any agent command with only localhost allowed, and get a signed receipt
 OLLAMA_API_BASE=http://127.0.0.1:11434 bash silent/silent.sh \
@@ -77,7 +77,7 @@ The figures below come from the maintainer's own incident log on one shared work
 
 ## Verifying a receipt
 
-`verify.sh` recomputes the log hash and checks the ed25519 signature with the public key embedded in the attestation. To pin instead of trusting the embedded key, compare `pubkey_sha256` with the maintainer fingerprint published in [silent/README.md](silent/README.md). Attestations from other installs carry their own keys. Signed files are stored byte-exact (`.gitattributes`), so a fresh clone verifies.
+`verify.sh` recomputes the log hash and checks the ed25519 signature with the public key embedded in the attestation. To pin instead of trusting the embedded key, compare `pubkey_sha256` with the maintainer fingerprint published in [silent/README.md](silent/README.md). Attestations from other installs carry their own keys. Attestation format ids written before v0.2 read `corral-silent-1`; new runs write `stillherd-silent-1`. Signed files are stored byte-exact (`.gitattributes`), so a fresh clone verifies.
 
 ## What Stillherd never does
 
@@ -90,7 +90,7 @@ The figures below come from the maintainer's own incident log on one shared work
 
 | Path | Contents |
 |---|---|
-| `install.sh`, `merge_settings.py`, `corral` | Installer, settings merge, status CLI |
+| `install.sh`, `merge_settings.py`, `stillherd` | Installer, settings merge, status CLI |
 | `vendor/hooks/` | The hooks and tools that get installed: `proc_tree.py`, `cpu_lease.py`, `gpu_lease.py`, `run_leased.py`, `activity_ledger.py`, `claim_capture.py`, `verify_claims.py`, `git_guard.sh`, `stash_guard.sh` |
 | `silent/` | Allowlist proxy, signed attestation, `verify.sh` |
 | `egress/` | Egress harness, classifier, redaction, week-1 results |

@@ -1,3 +1,5 @@
+Historical log from before the rename; the product was then called corral (now Stillherd). Command names below are as they were.
+
 # D5 clean run
 
 Fresh Ubuntu 24.04 WSL distro (`corral-d5`, official image), the repo copied in with `git archive` of a commit (not the working tree), run as a stranger would. Host Ollama reached over the distro's default gateway. Distro unregistered at the end. Driver: `d5_run.sh` (lease: 4 cores, eta 2400); in-distro steps: `d5_inner.sh`.

@@ -1,5 +1,5 @@
 {
-  "name": "corral",
+  "name": "stillherd",
   "version": "0.1.0",
   "description": "Guardrails that stop your agents from deleting one another's work: kill-tree, stash ban, CPU/GPU leases, claim receipts."
 }
