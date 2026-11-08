@@ -1,0 +1,31 @@
+{
+  "version": "stillherd-keep-installed-1",
+  "started": "2026-11-08T07:41:16Z",
+  "ended": "2026-11-08T07:41:23Z",
+  "dry_run": true,
+  "device_serial_sha256": null,
+  "apps": [
+    {
+      "name": "gh-cli",
+      "repo": "cli/cli",
+      "version": "v2.103.3",
+      "asset": "gh_2.103.3_linux_arm64.tar.gz",
+      "sha256": "ee32df2323c8847f5fac6cb6b4b69ca75828e9329a8f22f677021f7b3306ce63",
+      "verified": true,
+      "installed": false
+    },
+    {
+      "name": "hugo",
+      "repo": "gohugoio/hugo",
+      "version": "v0.169.0",
+      "asset": "hugo_0.169.0_linux-arm64.tar.gz",
+      "sha256": "ddadaaccbf437e3d39c33140b80c2180c4f46d027d16b7716c1282ea2e14e00c",
+      "verified": true,
+      "installed": false
+    }
+  ],
+  "adb_version": null,
+  "pubkey": "ryOeArTjXr0HI5CcHPKyc49406nY0XBvq2UkQAoopK8=",
+  "pubkey_sha256": "01c52d15d4cb911126638c31b8e38d304da65bfb1d89d57c0825ffd71540b8fe",
+  "signature": "HGceetWRJjtat3utIzxSi1LxEqqKfvHxhiU7epTLjk5QGK/xKhiaEOISFNKUmO1fYvKXQZAbTgPzjpiJo9UfCg=="
+}

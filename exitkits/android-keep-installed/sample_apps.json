@@ -1,0 +1,4 @@
+[
+  {"name": "gh-cli", "github_repo": "cli/cli", "apk_pattern": "gh_*_linux_arm64.tar.gz", "expected_sha256_url": "gh_*_checksums.txt"},
+  {"name": "hugo", "github_repo": "gohugoio/hugo", "apk_pattern": "hugo_0*_linux-arm64.tar.gz", "expected_sha256_url": "hugo_*_checksums.txt"}
+]
