@@ -1,0 +1,12 @@
+* text=auto eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+corral text eol=lf
+# signed artefacts: byte-exact, never normalised
+*.attestation.json -text
+*.silent.log.jsonl -text
+silent/attestation.json -text
+silent/silent.log.jsonl -text
+attestation.json -text
+silent.log.jsonl -text
+hosts.txt -text

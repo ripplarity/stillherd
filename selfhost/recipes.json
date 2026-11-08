@@ -1,0 +1,29 @@
+{
+  "notion": {
+    "replacement": "appflowy",
+    "license": "AGPL-3.0",
+    "license_osi": true,
+    "source_repo": "https://github.com/AppFlowy-IO/AppFlowy-Cloud",
+    "compose_url": "https://raw.githubusercontent.com/AppFlowy-IO/AppFlowy-Cloud/main/docker-compose.yml",
+    "env_url": "https://raw.githubusercontent.com/AppFlowy-IO/AppFlowy-Cloud/main/deploy.env",
+    "considered_not_chosen": "outline: source-available (BSL 1.1), not OSI"
+  },
+  "postman": {
+    "replacement": "hoppscotch",
+    "license": "MIT",
+    "license_osi": true,
+    "source_repo": "https://github.com/hoppscotch/hoppscotch",
+    "compose_url": "https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/docker-compose.yml",
+    "env_url": "https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/.env.example",
+    "considered_not_chosen": "bruno: MIT but a desktop app, no official compose file"
+  },
+  "slack": {
+    "replacement": "rocketchat",
+    "license": "MIT (core); enterprise-edition directories under a separate licence",
+    "license_osi": true,
+    "source_repo": "https://github.com/RocketChat/rocketchat-compose",
+    "compose_url": "https://raw.githubusercontent.com/RocketChat/rocketchat-compose/main/compose.yml",
+    "env_url": "https://raw.githubusercontent.com/RocketChat/rocketchat-compose/main/.env.example",
+    "considered_not_chosen": "none"
+  }
+}

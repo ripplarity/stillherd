@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# corral: one-screen status. Usage: corral status
+HOOKS="$(cd "$(dirname "$0")/../hooks" 2>/dev/null && pwd)"
+PY=python3; command -v python3 >/dev/null 2>&1 || PY=python
+section() {  # title, script, args...
+  local title="$1" script="$2"; shift 2
+  echo "== $title"
+  if [ -z "$HOOKS" ] || [ ! -f "$HOOKS/$script" ]; then echo "  (unavailable)"; return 0; fi
+  out=$(timeout 20 "$PY" "$HOOKS/$script" "$@" 2>&1); rc=$?
+  if [ $rc -ne 0 ] && [ -z "$out" ]; then echo "  (unavailable, rc=$rc)"; return 0; fi
+  printf '%s\n' "$out" | head -n 12 | sed 's/^/  /'
+}
+case "${1:-status}" in
+  status)
+    echo "corral status"
+    section "CPU leases" cpu_lease.py status
+    section "GPU lease" gpu_lease.py status
+    section "Ledger (running)" activity_ledger.py list
+    section "Orphan candidates" proc_tree.py orphans
+    ;;
+  *) echo "usage: corral status" >&2; exit 2 ;;
+esac
+exit 0

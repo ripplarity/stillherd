@@ -1,0 +1,9 @@
+.scrublist
+.aider*
+*launch.log
+*.launch
+*.run.log
+*.pid
+egress/requests.jsonl
+__pycache__/
+*.pyc

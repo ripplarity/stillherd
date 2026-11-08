@@ -1,0 +1,19 @@
+# The upstream compose builds from source (prod.Dockerfile is not in the downloaded file set).
+# This override runs the published all-in-one image instead. The migrate job runs the image's own prisma migrations
+# (without it the backend inside the image stays down because its tables do not exist).
+services:
+  hoppscotch-aio:
+    image: hoppscotch/hoppscotch:latest
+    build: !reset null
+    depends_on: !override
+      hoppscotch-db:
+        condition: service_healthy
+      hoppscotch-migrate:
+        condition: service_completed_successfully
+  hoppscotch-migrate:
+    image: hoppscotch/hoppscotch:latest
+    build: !reset null
+    entrypoint: ["sh", "-c"]
+    command: ["cd /dist/backend && pnpm exec prisma migrate deploy"]
+  hoppscotch-db:
+    ports: !override []

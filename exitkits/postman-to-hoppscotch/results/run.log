@@ -1,0 +1,44 @@
+validation: docker compose config: OK
+ Image postgres:15 Pulling 
+ Image hoppscotch/hoppscotch:latest Pulling 
+ Image postgres:15 Pulled 
+ Image hoppscotch/hoppscotch:latest Pulled 
+ Network hoppscotch_default Creating 
+ Network hoppscotch_default Created 
+ Container hoppscotch-hoppscotch-db-1 Creating 
+ Container hoppscotch-hoppscotch-db-1 Created 
+ Container hoppscotch-hoppscotch-migrate-1 Creating 
+ Container hoppscotch-hoppscotch-migrate-1 Created 
+ Container hoppscotch-aio Creating 
+ Container hoppscotch-aio Created 
+ Container hoppscotch-hoppscotch-db-1 Starting 
+ Container hoppscotch-hoppscotch-db-1 Started 
+ Container hoppscotch-hoppscotch-db-1 Waiting 
+ Container hoppscotch-hoppscotch-db-1 Healthy 
+ Container hoppscotch-hoppscotch-migrate-1 Starting 
+ Container hoppscotch-hoppscotch-migrate-1 Started 
+ Container hoppscotch-hoppscotch-db-1 Waiting 
+ Container hoppscotch-hoppscotch-migrate-1 Waiting 
+ Container hoppscotch-hoppscotch-db-1 Healthy 
+ Container hoppscotch-hoppscotch-migrate-1 Exited 
+ Container hoppscotch-aio Starting 
+ Container hoppscotch-aio Started 
+SMOKE ok 200 after 30s
+RESULT {"collections": ["Sample Orders API"], "requests_found": ["Create order", "Delete order", "Get order", "List orders", "Update order"], "requests_expected": ["Create order", "Delete order", "Get order", "List orders", "Update order"], "match": true}
+attestation: <repo>/exitkits/postman-to-hoppscotch/results/attestation.json attempts=0 external_bytes_sent=0 pubkey_sha256=df051692c8467ca1
+ Container hoppscotch-aio Stopping 
+ Container hoppscotch-aio Stopped 
+ Container hoppscotch-aio Removing 
+ Container hoppscotch-aio Removed 
+ Container hoppscotch-hoppscotch-migrate-1 Stopping 
+ Container hoppscotch-hoppscotch-migrate-1 Stopped 
+ Container hoppscotch-hoppscotch-migrate-1 Removing 
+ Container hoppscotch-hoppscotch-migrate-1 Removed 
+ Container hoppscotch-hoppscotch-db-1 Stopping 
+ Container hoppscotch-hoppscotch-db-1 Stopped 
+ Container hoppscotch-hoppscotch-db-1 Removing 
+ Container hoppscotch-hoppscotch-db-1 Removed 
+ Network hoppscotch_default Removing 
+ Network hoppscotch_default Removed 
+kit exit code: 0
+verify.sh: OK

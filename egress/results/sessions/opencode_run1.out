@@ -1,0 +1,37 @@
+--- /tmp/s_opencode_1_1.out
+[0m
+> build · qwen2.5-coder:7b
+[0m
+```json
+{
+  "name": "read",
+  "arguments": {
+    "limit": 2000,
+    "format": "markdown"
+  }
+}
+```
+--- /tmp/s_opencode_1_2.out
+[0m
+> build · qwen2.5-coder:7b
+[0m
+```json
+{
+  "name": "task",
+  "arguments": {
+    "description": "Create a new function in calc.py that multiplies two numbers and includes a docstring.",
+    "prompt": "Add a function mul(a, b) to calc.py that returns a * b, with a docstring.",
+    "subagent_type": "general"
+  }
+}
+```
+--- /tmp/s_opencode_1_3.out
+[0m
+> build · qwen2.5-coder:7b
+[0m
+{"name": "read", "arguments": {"filePath": "/path/to/test_results.txt"}}
+--- /tmp/s_opencode_1_4.out
+[0m
+> build · qwen2.5-coder:7b
+[0m
+{"name": "todowrite", "arguments": {"todos": [{"content": "Explain the functionality of calc.py", "priority": "low", "status": "pending"}]}}

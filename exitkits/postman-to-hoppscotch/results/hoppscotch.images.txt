@@ -1,0 +1,2 @@
+hoppscotch/hoppscotch:latest hoppscotch/hoppscotch@sha256:09a50aa1831ff1e39dfe73bf672e2bca45e1e73514d656e9be6a91f561071a53
+postgres:15 postgres@sha256:1aac5b49cefd627f02816141ca4ad012d6cc19460dfe02a9b5168a105be3fc53

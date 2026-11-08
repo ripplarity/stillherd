@@ -1,0 +1,11 @@
+time="2026-11-07T19:12:43-08:00" level=warning msg="The \"APPFLOWY_S3_REGION\" variable is not set. Defaulting to a blank string."
+time="2026-11-07T19:12:43-08:00" level=warning msg="The \"AZURE_OPENAI_API_KEY\" variable is not set. Defaulting to a blank string."
+time="2026-11-07T19:12:43-08:00" level=warning msg="The \"AZURE_OPENAI_ENDPOINT\" variable is not set. Defaulting to a blank string."
+time="2026-11-07T19:12:43-08:00" level=warning msg="The \"AZURE_OPENAI_API_VERSION\" variable is not set. Defaulting to a blank string."
+time="2026-11-07T19:12:43-08:00" level=warning msg="The \"APPFLOWY_S3_REGION\" variable is not set. Defaulting to a blank string."
+time="2026-11-07T19:12:43-08:00" level=warning msg="The \"AZURE_OPENAI_API_KEY\" variable is not set. Defaulting to a blank string."
+time="2026-11-07T19:12:43-08:00" level=warning msg="The \"AZURE_OPENAI_ENDPOINT\" variable is not set. Defaulting to a blank string."
+time="2026-11-07T19:12:43-08:00" level=warning msg="The \"AZURE_OPENAI_API_VERSION\" variable is not set. Defaulting to a blank string."
+time="2026-11-07T19:12:43-08:00" level=warning msg="The \"APPFLOWY_S3_REGION\" variable is not set. Defaulting to a blank string."
+time="2026-11-07T19:12:43-08:00" level=warning msg="The \"APPFLOWY_S3_REGION\" variable is not set. Defaulting to a blank string."
+docker compose config: OK

@@ -1,0 +1,7 @@
+data/
+session.out
+run.log
+run.log.pid
+clean_run.log
+clean_run.log.pid
+__pycache__/

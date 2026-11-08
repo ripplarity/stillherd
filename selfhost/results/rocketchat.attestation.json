@@ -1,0 +1,44 @@
+{
+  "version": "corral-silent-1",
+  "started": "2026-11-08T03:43:23Z",
+  "ended": "2026-11-08T03:44:04Z",
+  "cmd": [
+    "bash",
+    "selfhost/recipes/rocketchat/smoke.sh"
+  ],
+  "exit_code": 0,
+  "allowlist": [
+    "127.0.0.1",
+    "::1",
+    "localhost"
+  ],
+  "external_attempts": [
+    {
+      "host": "collector.rocket.chat",
+      "path": "",
+      "ts": 1794109436.5484102
+    },
+    {
+      "host": "releases.rocket.chat",
+      "path": "",
+      "ts": 1794109436.5560822
+    },
+    {
+      "host": "releases.rocket.chat",
+      "path": "",
+      "ts": 1794109437.0646381
+    },
+    {
+      "host": "releases.rocket.chat",
+      "path": "",
+      "ts": 1794109441.5789003
+    }
+  ],
+  "external_bytes_sent": 0,
+  "blocked_request_bytes": 0,
+  "log_file": "rocketchat.silent.log.jsonl",
+  "log_sha256": "06258fb96659edf21043e8d369891cc2aa50ceff5f560e2855bbe4ce45d0ec8c",
+  "pubkey": "qyNuEqWo79F3XCrpVvDg/fNHPufL72/Av18YNuS+Hhg=",
+  "pubkey_sha256": "df051692c8467ca1eceb62d03333a02928bcb1a7ab42133efa2e2ef4287d1c42",
+  "signature": "q86ZlS/iyThVWIAnEkA6EQ0k+B3qxwZ2IVXlSJB3nNqE0e/0ZfAhrr1HPnN6BW9D51UyGMGp02VcGucX63ZsDw=="
+}

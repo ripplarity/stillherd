@@ -1,0 +1,23 @@
+{
+  "version": "corral-silent-1",
+  "started": "2026-11-08T04:56:40Z",
+  "ended": "2026-11-08T04:57:11Z",
+  "cmd": [
+    "bash",
+    "selfhost/recipes/hoppscotch/smoke.sh"
+  ],
+  "exit_code": 0,
+  "allowlist": [
+    "127.0.0.1",
+    "::1",
+    "localhost"
+  ],
+  "external_attempts": [],
+  "external_bytes_sent": 0,
+  "blocked_request_bytes": 0,
+  "log_file": "hoppscotch.silent.log.jsonl",
+  "log_sha256": "da5a1289046f9a1f9f93984d4e63ee18b0a8c7d4345af6fa0e5ee4515685e5a7",
+  "pubkey": "qyNuEqWo79F3XCrpVvDg/fNHPufL72/Av18YNuS+Hhg=",
+  "pubkey_sha256": "df051692c8467ca1eceb62d03333a02928bcb1a7ab42133efa2e2ef4287d1c42",
+  "signature": "tViOm9j3g6SIvjOdw7jrEL8+M3gBTb/vpRqmnxVF6lWbxPZhmJU74+klC5+s4QirIWjB/PL4p43zSYg0KH9ACg=="
+}

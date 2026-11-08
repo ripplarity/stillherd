@@ -1,0 +1,111 @@
+services:
+  mongodb-fix-permission-container:
+    image: docker.io/mongodb/mongodb-community-server:${MONGODB_VERSION:-8.2}-ubi8
+    restart: on-failure
+    user: "0"
+    volumes:
+      - ${MONGODB_HOST_PATH:-mongodb_data}:/data/db:rw
+    environment:
+      MONGODB_USER_ID: ${MONGODB_USER_ID:-1001}
+    entrypoint: |
+      sh -xc '
+        owner="$(stat -c %u /data/db)";
+        # for fresh installs
+        if [ "$$owner" != "$$MONGODB_USER_ID" ]; then
+          echo "=====> Fixing directory ownership to uid $$MONGODB_USER_ID"
+          chown -R "$$MONGODB_USER_ID" /data/db;
+        else echo "=====> Nothing to do"; fi;
+      '
+  # TODO: add user creation here
+  mongodb-init-container:
+    image: docker.io/mongodb/mongodb-community-server:${MONGODB_VERSION:-8.2}-ubi8
+    restart: on-failure
+    # depends_on:
+    #   mongodb:
+    #     condition: service_healthy
+    user: "0"
+    environment:
+      MONGODB_REPLICA_SET_NAME: ${MONGODB_REPLICA_SET_NAME:-rs0}
+      MONGODB_PORT_NUMBER: ${MONGODB_PORT_NUMBER:-27017}
+      MONGODB_URI: ${MONGODB_URI:-mongodb://mongodb:27017/?directConnection=true}
+      MONGODB_ADVERTISED_HOSTNAME: ${MONGODB_ADVERTISED_HOSTNAME:-mongodb}
+    volumes:
+      - ${MONGODB_HOST_PATH:-mongodb_data}:/data/db:rw
+    logging:
+      driver: "json-file"
+    labels:
+      container_tag: "${COMPOSE_PROJECT_NAME:-rocketchat}#mongodb-init-container"
+    entrypoint: |
+      sh -xc '
+        echo "=====> Waiting for MongoDB to be healthy before initiating replica set...";
+        until mongosh "$$MONGODB_URI" --eval "db.adminCommand(\"ping\")" >/dev/null 2>&1; do
+          echo "=====> MongoDB not ready yet, retrying in 5 seconds...";
+          sleep 5;
+        done;
+        echo "=====> Initiating ReplSet $$MONGODB_REPLICA_SET_NAME at $$MONGODB_ADVERTISED_HOSTNAME:$$MONGODB_PORT_NUMBER...";
+        mongosh "$$MONGODB_URI" --eval "rs.initiate({_id: \"$$MONGODB_REPLICA_SET_NAME\", members: [{ _id: 0, host: \"$$MONGODB_ADVERTISED_HOSTNAME:$$MONGODB_PORT_NUMBER\" }]})";
+        echo "=====> Initiating ReplSet done...";
+      '
+
+  mongodb:
+    image: docker.io/mongodb/mongodb-community-server:${MONGODB_VERSION:-8.2}-ubi8
+    restart: always
+    # depends_on:
+    #   mongodb-fix-permission-container:
+    #     condition: service_completed_successfully
+    volumes:
+      - ${MONGODB_HOST_PATH:-mongodb_data}:/data/db:rw
+    user: "${MONGODB_USER_ID:-1001}"
+    entrypoint:
+      - sh
+      - -ec
+      - |
+        echo "=====> Waiting for /data/db to be owned by uid=$$MONGODB_USER_ID (mongodb user) ...";
+        for i in $(seq 1 60); do
+          owner="$(stat -c %u /data/db 2>/dev/null || true)";
+          if [ "$$owner" = "$$MONGODB_USER_ID" ]; then
+            echo "=====> /data/db ownership OK ($$owner) - starting MongoDB";
+            exec mongod --replSet "$$MONGODB_REPLICA_SET_NAME" --bind_ip_all;
+          fi;
+          echo "=====> /data/db owner is '$$owner' (expected $$MONGODB_USER_ID), retrying in 5 seconds...";
+          sleep 5;
+        done;
+        echo "=====> Giving up waiting for /data/db ownership after 5 minutes";
+        exit 1
+    environment:
+      MONGODB_USER_ID: ${MONGODB_USER_ID:-1001}
+      MONGODB_REPLICA_SET_NAME: ${MONGODB_REPLICA_SET_NAME:-rs0}
+      MONGODB_PORT_NUMBER: ${MONGODB_PORT_NUMBER:-27017}
+      MONGODB_ADVERTISED_HOSTNAME: ${MONGODB_ADVERTISED_HOSTNAME:-mongodb}
+      ALLOW_EMPTY_PASSWORD: ${ALLOW_EMPTY_PASSWORD:-yes}
+    logging:
+      driver: "json-file"
+    labels:
+      container_tag: "${COMPOSE_PROJECT_NAME:-rocketchat}#mongodb"
+    healthcheck:
+      test:
+        - CMD
+        - mongosh
+        - "mongodb://${MONGODB_ADVERTISED_HOSTNAME:-mongodb}:${MONGODB_PORT_NUMBER:-27017}/?directConnection=true"
+        - --eval
+        - '"db.adminCommand(''ping'')"'
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    ports:
+      - "${MONGODB_BIND_IP:-127.0.0.1}:${MONGODB_PORT_NUMBER:-27017}:${MONGODB_PORT_NUMBER:-27017}"
+
+  mongodb-exporter:
+    image: docker.io/percona/mongodb_exporter:${MONGODB_EXPORTER_VERSION:-0.44.0}
+    depends_on:
+      - mongodb
+    expose:
+      - 9216
+    command:
+      - --mongodb.uri=${MONGODB_URI:-mongodb://mongodb:27017}
+      - --collect-all
+      - --compatible-mode
+
+volumes:
+  mongodb_data: {driver: local}

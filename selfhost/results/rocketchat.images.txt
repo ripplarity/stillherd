@@ -1,0 +1,5 @@
+docker.io/mongodb/mongodb-community-server:8.2-ubi8 mongodb/mongodb-community-server@sha256:26948caea975097b3a381ad9c2d531fccebdb826a5c65e3ca274b08d3cfdf987
+docker.io/nats:2.11-alpine nats@sha256:e4bf19f15fd3218814a4e3c9e0064e1334bd8aa20d5984b9f1a0afd084f8cc00
+docker.io/natsio/prometheus-nats-exporter:0.17.3 natsio/prometheus-nats-exporter@sha256:26c826662ac8424597cc9bdf89ea5b606eb66e3c11db9b1215c27d2076bbb01b
+docker.io/percona/mongodb_exporter:0.44.0 percona/mongodb_exporter@sha256:d9c577166068197bf6908296d9742cc8267e7b7e1054199436d6d922e8921679
+registry.rocket.chat/rocketchat/rocket.chat:8.0.1 registry.rocket.chat/rocketchat/rocket.chat@sha256:700a9ac5a665bae9adab4da1a87adc87e241b405a61b01de80bb396f01b3714e

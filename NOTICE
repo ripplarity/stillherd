@@ -1,0 +1,1 @@
+corral ships Docker Compose recipes under selfhost/recipes/ that are derived from the upstream projects' own compose files. Each recipe keeps its upstream licence: AppFlowy (AGPL-3.0), Hoppscotch (MIT), Rocket.Chat (MIT core). The receipts, scripts and documentation written for corral are covered by the repository LICENSE.

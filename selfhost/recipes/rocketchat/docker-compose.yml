@@ -1,0 +1,38 @@
+services:
+  rocketchat:
+    image: ${IMAGE:-registry.rocket.chat/rocketchat/rocket.chat}:${RELEASE:-8.0.1}
+    restart: always
+    labels:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: ${METRICS_PORT:-9458}
+      container_tag: "${COMPOSE_PROJECT_NAME:-rocketchat}#rocketchat"
+    environment:
+      ROOT_URL: ${ROOT_URL:-http://localhost}
+      PORT: ${PORT:-3000}
+      DEPLOY_METHOD: docker
+      DEPLOY_PLATFORM: compose
+      REG_TOKEN: ${REG_TOKEN:-}
+      LICENSE_DEBUG: true
+      OVERWRITE_SETTING_Prometheus_Enabled: true
+      OVERWRITE_SETTING_Prometheus_Port: "${METRICS_PORT:-9458}"
+      MONGO_URL: ${MONGO_URL:-mongodb://mongodb:27017/rocketchat?replicaSet=rs0}
+      TRANSPORTER: "${NATS_URL-monolith+nats://nats:4222}"
+      INSTANCE_IP: "${INSTANCE_IP:-}"
+      ROCKETCHAT_LICENSE: ${ROCKETCHAT_LICENSE:-}
+    # depends_on:
+    #   mongodb-init-container:
+    #     condition: service_completed_successfully
+    expose:
+      - ${PORT:-3000}
+      - ${METRICS_PORT:-9458}
+    ports:
+      - "${BIND_IP:-0.0.0.0}:${HOST_PORT:-3000}:${PORT:-3000}"
+      - "${BIND_IP:-0.0.0.0}:${METRICS_PORT:-9458}:${METRICS_PORT:-9458}"
+    logging:
+      driver: "json-file"
+    # healthcheck:
+    #   test: ["CMD", "nc", "-zv", "-w", "10", "rocketchat", "${PORT:-3000}"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 10
+    #   start_period: 30s

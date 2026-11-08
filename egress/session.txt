@@ -1,0 +1,5 @@
+List the files in the current directory and say what each one is for.
+Add a function mul(a, b) to calc.py that returns a*b, with a docstring.
+Run the tests with python -m pytest -q and report the result.
+Explain what calc.py does in three sentences.
+/exit

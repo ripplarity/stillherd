@@ -1,0 +1,7 @@
+{"action": "blocked", "bytes": 0, "host": "pypi.org", "method": "CONNECT", "path": "", "stage": "connect", "ts": 1794094256.0446086}
+{"action": "blocked", "bytes": 0, "host": "raw.githubusercontent.com", "method": "CONNECT", "path": "", "stage": "connect", "ts": 1794094258.87017}
+{"action": "allowed", "bytes": 27, "host": "127.0.0.1", "method": "POST", "path": "/api/show", "stage": "request", "ts": 1794094364.8705492}
+{"action": "allowed", "bytes": 27, "host": "127.0.0.1", "method": "POST", "path": "/api/show", "stage": "request", "ts": 1794094366.7543209}
+{"action": "allowed", "bytes": 3067, "host": "127.0.0.1", "method": "POST", "path": "/api/chat", "stage": "request", "ts": 1794094366.8274622}
+{"action": "allowed", "bytes": 27, "host": "127.0.0.1", "method": "POST", "path": "/api/show", "stage": "request", "ts": 1794094391.6465583}
+{"action": "allowed", "bytes": 27, "host": "127.0.0.1", "method": "POST", "path": "/api/show", "stage": "request", "ts": 1794094391.8489792}

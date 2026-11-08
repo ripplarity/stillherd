@@ -1,0 +1,40 @@
+{
+  "version": "corral-silent-1",
+  "started": "2026-11-07T23:30:49Z",
+  "ended": "2026-11-07T23:33:12Z",
+  "cmd": [
+    "aider",
+    "--model",
+    "ollama_chat/qwen2.5-coder:7b",
+    "--message",
+    "say hi",
+    "--yes-always",
+    "--no-git",
+    "--no-auto-commits"
+  ],
+  "exit_code": 0,
+  "allowlist": [
+    "127.0.0.1",
+    "::1",
+    "localhost"
+  ],
+  "external_attempts": [
+    {
+      "host": "pypi.org",
+      "path": "",
+      "ts": 1794094256.0446086
+    },
+    {
+      "host": "raw.githubusercontent.com",
+      "path": "",
+      "ts": 1794094258.87017
+    }
+  ],
+  "external_bytes_sent": 0,
+  "blocked_request_bytes": 0,
+  "log_file": "silent.log.jsonl",
+  "log_sha256": "d54a8dd92857124ae788359d1bd4ced56ad66d0f99dcaec555705ced2386ffdf",
+  "pubkey": "qyNuEqWo79F3XCrpVvDg/fNHPufL72/Av18YNuS+Hhg=",
+  "pubkey_sha256": "df051692c8467ca1eceb62d03333a02928bcb1a7ab42133efa2e2ef4287d1c42",
+  "signature": "hCIYCePv1jWqCfks65ARym5XWAOa1BdCwNOQz1keKnZNgq8Xz2sa1G/QqmRco7b7R3Y7T/csQ8McqL3jbx/NAg=="
+}

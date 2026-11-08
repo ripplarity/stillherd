@@ -1,0 +1,12 @@
+{"ts": 1794089475.170292, "tool": "goose", "version": "1.57.0", "host": "models.dev", "path": "/api.json", "method": "GET", "bytes": 0, "content_type": ""}
+{"ts": 1794089476.35551, "tool": "goose", "version": "1.57.0", "host": "172.20.240.1", "path": "/api/show", "method": "POST", "bytes": 28, "content_type": "application/json"}
+{"ts": 1794089476.4598858, "tool": "goose", "version": "1.57.0", "host": "172.20.240.1", "path": "/v1/chat/completions", "method": "POST", "bytes": 17427, "content_type": "application/json"}
+{"ts": 1794089498.7249894, "tool": "goose", "version": "1.57.0", "host": "models.dev", "path": "/api.json", "method": "GET", "bytes": 0, "content_type": ""}
+{"ts": 1794089498.9860375, "tool": "goose", "version": "1.57.0", "host": "172.20.240.1", "path": "/api/show", "method": "POST", "bytes": 28, "content_type": "application/json"}
+{"ts": 1794089499.1077933, "tool": "goose", "version": "1.57.0", "host": "172.20.240.1", "path": "/v1/chat/completions", "method": "POST", "bytes": 17790, "content_type": "application/json"}
+{"ts": 1794089532.865834, "tool": "goose", "version": "1.57.0", "host": "172.20.240.1", "path": "/api/show", "method": "POST", "bytes": 28, "content_type": "application/json"}
+{"ts": 1794089532.9132361, "tool": "goose", "version": "1.57.0", "host": "172.20.240.1", "path": "/v1/chat/completions", "method": "POST", "bytes": 20343, "content_type": "application/json"}
+{"ts": 1794089532.9276717, "tool": "goose", "version": "1.57.0", "host": "models.dev", "path": "/api.json", "method": "GET", "bytes": 0, "content_type": ""}
+{"ts": 1794089560.25371, "tool": "goose", "version": "1.57.0", "host": "models.dev", "path": "/api.json", "method": "GET", "bytes": 0, "content_type": ""}
+{"ts": 1794089560.2575147, "tool": "goose", "version": "1.57.0", "host": "172.20.240.1", "path": "/api/show", "method": "POST", "bytes": 28, "content_type": "application/json"}
+{"ts": 1794089560.2934148, "tool": "goose", "version": "1.57.0", "host": "172.20.240.1", "path": "/v1/chat/completions", "method": "POST", "bytes": 22214, "content_type": "application/json"}

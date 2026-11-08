@@ -1,0 +1,8 @@
+{"action": "allowed", "bytes": 0, "host": "localhost", "method": "GET", "path": "/api/info", "stage": "request", "ts": 1794109405.6974494}
+{"action": "allowed", "bytes": 0, "host": "localhost", "method": "GET", "path": "/api/info", "stage": "request", "ts": 1794109418.1192274}
+{"action": "allowed", "bytes": 0, "host": "localhost", "method": "GET", "path": "/api/info", "stage": "request", "ts": 1794109430.3147252}
+{"action": "blocked", "bytes": 0, "host": "collector.rocket.chat", "method": "CONNECT", "path": "", "stage": "connect", "ts": 1794109436.5484102}
+{"action": "blocked", "bytes": 0, "host": "releases.rocket.chat", "method": "CONNECT", "path": "", "stage": "connect", "ts": 1794109436.5560822}
+{"action": "blocked", "bytes": 0, "host": "releases.rocket.chat", "method": "CONNECT", "path": "", "stage": "connect", "ts": 1794109437.0646381}
+{"action": "blocked", "bytes": 0, "host": "releases.rocket.chat", "method": "CONNECT", "path": "", "stage": "connect", "ts": 1794109441.5789003}
+{"action": "allowed", "bytes": 0, "host": "localhost", "method": "GET", "path": "/api/info", "stage": "request", "ts": 1794109442.4676542}

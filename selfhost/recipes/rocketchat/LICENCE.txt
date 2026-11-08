@@ -1,0 +1,1 @@
+licence: MIT (core); enterprise-edition directories under a separate licence

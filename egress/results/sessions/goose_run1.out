@@ -1,0 +1,24 @@
+--- /tmp/s_goose_1_1.out
+
+    __( O)>  ● new session · ollama qwen2.5-coder:7b
+   \____)    20261107_1 · /tmp/w
+     L L     goose is ready
+{"name": "tree", "arguments": {"path": "/tmp/w"}}
+--- /tmp/s_goose_1_2.out
+
+    __( O)>  ● resuming · ollama qwen2.5-coder:7b
+   \____)    20261107_1 · /tmp/w
+     L L     goose is ready
+{"name": "edit", "arguments": {"path": "/tmp/w/calc.py", "before": "", "after": "def mul(a, b):\n    '''Return the product of a and b.\n\n    Parameters:\n        a (int, float): The first number.\n        b (int, float): The second number.\n\n    Returns:\n        int, float: The product of a and b.\n    '''\n    return a * b"}}
+--- /tmp/s_goose_1_3.out
+
+    __( O)>  ● resuming · ollama qwen2.5-coder:7b
+   \____)    20261107_1 · /tmp/w
+     L L     goose is ready
+{"name": "shell", "arguments": {"command": "python3 -m pytest -q"}}
+--- /tmp/s_goose_1_4.out
+
+    __( O)>  ● resuming · ollama qwen2.5-coder:7b
+   \____)    20261107_1 · /tmp/w
+     L L     goose is ready
+{"name": "read_image", "arguments": {"source": "/tmp/w/calc.py"}}

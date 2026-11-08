@@ -1,0 +1,4 @@
+# minio/minio is no longer published on Docker Hub; use the registry the project documents.
+services:
+  minio:
+    image: quay.io/minio/minio:latest

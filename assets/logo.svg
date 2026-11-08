@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Stillherd">
+  <title>Stillherd</title>
+  <!-- fence ring: posts around the fleet -->
+  <circle cx="128" cy="128" r="104" fill="none" stroke="currentColor" stroke-width="14" stroke-linecap="round" stroke-dasharray="2 30"/>
+  <!-- inner rail -->
+  <circle cx="128" cy="128" r="80" fill="none" stroke="currentColor" stroke-width="4" opacity="0.35"/>
+  <!-- the fleet: three dots -->
+  <circle cx="98" cy="104" r="11" fill="currentColor"/>
+  <circle cx="158" cy="104" r="11" fill="currentColor"/>
+  <circle cx="128" cy="150" r="11" fill="currentColor"/>
+  <!-- the receipt: a check across the ring -->
+  <path d="M74 134 L112 172 L190 94" fill="none" stroke="#1FB37A" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

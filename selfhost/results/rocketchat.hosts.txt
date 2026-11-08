@@ -1,0 +1,2 @@
+collector.rocket.chat
+releases.rocket.chat

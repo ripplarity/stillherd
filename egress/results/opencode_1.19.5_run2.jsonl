@@ -1,0 +1,10 @@
+{"ts": 1794089221.823337, "tool": "opencode", "version": "1.19.5", "host": "models.opencode.ai", "path": "/api.json", "method": "GET", "bytes": 0, "content_type": ""}
+{"ts": 1794089226.6251142, "tool": "opencode", "version": "1.19.5", "host": "172.20.240.1", "path": "/v1/chat/completions", "method": "POST", "bytes": 2521, "content_type": "application/json"}
+{"ts": 1794089229.4152799, "tool": "opencode", "version": "1.19.5", "host": "172.20.240.1", "path": "/v1/chat/completions", "method": "POST", "bytes": 30765, "content_type": "application/json"}
+{"ts": 1794089234.5608907, "tool": "opencode", "version": "1.19.5", "host": "registry.npmjs.org", "path": "/-/npm/v1/security/advisories/bulk", "method": "POST", "bytes": 404, "content_type": "application/json"}
+{"ts": 1794089234.585351, "tool": "opencode", "version": "1.19.5", "host": "registry.npmjs.org", "path": "/effect/-/effect-4.0.0-beta.83.tgz", "method": "GET", "bytes": 0, "content_type": ""}
+{"ts": 1794089254.6721427, "tool": "opencode", "version": "1.19.5", "host": "172.20.240.1", "path": "/v1/chat/completions", "method": "POST", "bytes": 30976, "content_type": "application/json"}
+{"ts": 1794089272.2701285, "tool": "opencode", "version": "1.19.5", "host": "172.20.240.1", "path": "/v1/chat/completions", "method": "POST", "bytes": 31196, "content_type": "application/json"}
+{"ts": 1794089295.45872, "tool": "opencode", "version": "1.19.5", "host": "172.20.240.1", "path": "/v1/chat/completions", "method": "POST", "bytes": 31505, "content_type": "application/json"}
+{"ts": 1794089296.7374833, "tool": "opencode", "version": "1.19.5", "host": "registry.npmjs.org", "path": "/effect/-/effect-4.0.0-beta.83.tgz", "method": "GET", "bytes": 0, "content_type": ""}
+{"ts": 1794089296.741788, "tool": "opencode", "version": "1.19.5", "host": "registry.npmjs.org", "path": "/-/npm/v1/security/advisories/bulk", "method": "POST", "bytes": 378, "content_type": "application/json"}

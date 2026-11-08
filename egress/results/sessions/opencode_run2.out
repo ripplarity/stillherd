@@ -1,0 +1,32 @@
+--- /tmp/s_opencode_2_1.out
+[0m
+> build · qwen2.5-coder:7b
+[0m
+{"name": "read", "arguments": {"filePath": ".", "offset": 1}}
+--- /tmp/s_opencode_2_2.out
+[0m
+> build · qwen2.5-coder:7b
+[0m
+{
+  "name": "read",
+  "arguments": {
+    "filePath": "/path/to/calc.py"
+  }
+}
+--- /tmp/s_opencode_2_3.out
+[0m
+> build · qwen2.5-coder:7b
+[0m
+{
+    "name": "read",
+    "arguments": {
+        "filePath": "/path/to/your/test_results.txt", // path to store the test results
+        "offset": 1,
+        "limit": 0
+    }
+}
+--- /tmp/s_opencode_2_4.out
+[0m
+> build · qwen2.5-coder:7b
+[0m
+{"name": "read", "arguments": {"filePath": "/path/to/calc.py"}}
