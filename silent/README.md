@@ -9,7 +9,7 @@ Usage:
 
 `silent.sh` starts `mitmdump` (regular proxy mode) with `block_addon.py`, which answers HTTP 403 for every host not on the allowlist (default `127.0.0.1`, `localhost`, `::1`; add the host Ollama address with `SILENT_ALLOW_EXTRA=ip`). Blocked CONNECT tunnels are refused before any TLS. It sets the proxy and CA environment variables, runs the command, and writes `attestation.json` and `silent.log.jsonl`. The command's exit code is passed through.
 
-`attestation.json` holds: start and end time, command, allowlist, `external_attempts` (host, path, timestamp), `external_bytes_sent` (bytes of requests forwarded to non-allowlisted hosts), `blocked_request_bytes`, `log_sha256`, the public key and an ed25519 signature over the canonical JSON of all other fields. The private key is created on first use at `~/.corral/silent_ed25519.pem` (override with `SILENT_KEY`); it never leaves that file. `verify.sh` checks the signature and recomputes the log hash; pass a pinned public-key SHA-256 as the second argument to check who signed.
+`attestation.json` holds: start and end time, command, allowlist, `external_attempts` (host, path, timestamp), `external_bytes_sent` (bytes of requests forwarded to non-allowlisted hosts), `blocked_request_bytes`, `log_sha256`, the public key and an ed25519 signature over the canonical JSON of all other fields. The private key is created on first use at `~/.stillherd/silent_ed25519.pem` (an existing `~/.corral/` key is still found) (override with `SILENT_KEY`); it never leaves that file. `verify.sh` checks the signature and recomputes the log hash; pass a pinned public-key SHA-256 as the second argument to check who signed.
 
 ## What this proves and what it does not
 
