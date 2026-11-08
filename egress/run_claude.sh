@@ -18,7 +18,7 @@ for n in 1 2; do
   MPID=$!
   for i in $(seq 1 30); do [ -f "$CA" ] && (echo > /dev/tcp/127.0.0.1/$PORT) 2>/dev/null && break; sleep 1; done
   W="$(mktemp -d)"; ( cd "$W" && printf 'print("hello")\n' > hello.py )
-  : > "$HERE/results/sessions/claude-code_run$n.turns.txt"
+  : > "$HERE/results/sessions/claude-code_${VERSION}_run$n.turns.txt"
   first=1; i=0
   while IFS= read -r line; do
     [ "$line" = "/exit" ] && break
@@ -28,7 +28,7 @@ for n in 1 2; do
         timeout 300 claude -p $A --setting-sources project --strict-mcp-config --disable-slash-commands \
           --allowedTools Read Edit Write Glob Grep "Bash(python -m pytest:*)" "Bash(ls:*)" -- "$line" > "$W/turn$i.out" 2>&1 < /dev/null )
     rc=$?
-    echo "TURN $i rc=$rc out_bytes=$(wc -c < "$W/turn$i.out")" >> "$HERE/results/sessions/claude-code_run$n.turns.txt"
+    echo "TURN $i rc=$rc out_bytes=$(wc -c < "$W/turn$i.out")" >> "$HERE/results/sessions/claude-code_${VERSION}_run$n.turns.txt"
   done < "$HERE/session.txt"
   sleep 3; kill $MPID 2>/dev/null; sleep 2
   (python3 "$HERE/redact.py" "$OUT" 2>/dev/null || python "$HERE/redact.py" "$OUT")  # strip query strings and ids before anything else reads the log
