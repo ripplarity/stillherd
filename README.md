@@ -20,7 +20,7 @@
 <p align="center"><code>bash install.sh /path/to/your/project</code></p>
 
 <p align="center">
-  <img src="assets/hero.svg" width="880" alt="Egress table from egress/results/WEEK1_TABLE.md: of five tool runs, only Claude Code 2.1.304 contacted a telemetry host (Datadog log intake), and with the telemetry opt-out it did not; then a signed attestation verifies OK">
+  <img src="assets/hero.svg" width="880" alt="Egress table from the week-1 runs in egress/results/WEEK1_TABLE.md (aider, goose, opencode, Claude Code 2.1.304 and its opt-out run): only Claude Code 2.1.304 contacted a telemetry host (Datadog log intake), and with the telemetry opt-out it did not; the later 2.1.319 runs in the same table (no opt-out run) contacted it too; then a signed attestation verifies OK">
 </p>
 
 <table align="center">
