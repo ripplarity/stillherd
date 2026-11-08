@@ -10,3 +10,4 @@ silent/silent.log.jsonl -text
 attestation.json -text
 silent.log.jsonl -text
 hosts.txt -text
+receipt_*.json -text
