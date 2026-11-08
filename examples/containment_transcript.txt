@@ -1,0 +1,16 @@
+== run under silent.sh (allowlist: 127.0.0.1, localhost, ::1)
+agent: allowed local action
+local  http://127.0.0.1:8765 -> 200
+agent: outbound to non-allowlisted host
+remote https://example.com -> 000
+attestation: examples/containment.dsse.json attempts=1 external_bytes_sent=0 keyid=df051692c8467ca1
+== external attempts recorded in the log
+BLOCKED example.com  at 2026-11-08T23:40:09Z
+== verify (pinned keyid)
+VALID-SIGNATURE
+VALID https://ripplarity.com/attestation/stillherd/silent/v1
+OK
+== tamper: flip one byte of a copy of the log
+SUBJECT-MISMATCH: containment.silent.log.jsonl
+VALID-SIGNATURE
+FAIL (tampered copy rejected)

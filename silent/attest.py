@@ -9,10 +9,10 @@ import sys
 from cryptography.hazmat.primitives import serialization
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dsse import PRED, load_key, make_envelope
+from dsse import PRED, load_key, make_envelope, scrub_arg
 
 log, out, started, ended, exit_code, allow = sys.argv[1:7]
-cmd = sys.argv[8:] if len(sys.argv) > 8 else []
+cmd = [scrub_arg(a) for a in sys.argv[8:]]
 
 rows = (
     [json.loads(l) for l in open(log, encoding="utf-8") if l.strip()]

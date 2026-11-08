@@ -18,6 +18,11 @@ WRONG="$(printf '%064d' 1)"
 bash "$HERE/silent/verify.sh" "$T/a.dsse.json" "$WRONG" >/dev/null 2>&1 && bad "wrong keyid accepted" || ok "wrong keyid rejected"
 echo tamper >> "$T/silent.log.jsonl"
 bash "$HERE/silent/verify.sh" "$T/a.dsse.json" "$KID" >/dev/null 2>&1 && bad "tampered log accepted" || ok "tampered subject rejected"
+# argv paths are reduced to basenames in the signed payload
+: > "$T/empty.jsonl"
+SILENT_KEY="$T/k.pem" "$PY" "$HERE/silent/attest.py" "$T/empty.jsonl" "$T/p.dsse.json" 2026-01-01T00:00:00Z 2026-01-01T00:00:05Z 0 127.0.0.1 -- bash "C:/Users/someone/AppData/Local/Temp/tmp.AbC/agent.sh" /tmp/xyz.123/a.sh --flag https://example.com/x >/dev/null
+pl="$("$PY" -I -c 'import json,base64,sys;print(json.loads(base64.b64decode(json.load(open(sys.argv[1]))["payload"]))["predicate"]["cmd"])' "$T/p.dsse.json")"
+case "$pl" in *Users*|*Temp*|*tmp.*|*xyz*) bad "path leaked in cmd: $pl" ;; *"'agent.sh', 'a.sh', '--flag', 'https://example.com/x'"*) ok "argv paths reduced to basename" ;; *) bad "cmd unexpected: $pl" ;; esac
 SPEC="$HERE/../attest-spec/attest_verify.py"
 if [ -f "$SPEC" ]; then
   # the shipped verifier must be byte-identical to the spec REVISION this repo tracks (pinned below),

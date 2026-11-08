@@ -160,3 +160,17 @@ The guard tests and installer run on a fresh Ubuntu 24.04 distro; see [D5_CLEANR
 ---
 
 <p align="center"><sub>Apache-2.0 for everything written here; the compose recipes under <code>selfhost/recipes/</code> keep their upstream licences (see <a href="NOTICE">NOTICE</a>). Copyright 2026 Ripplarity Inc.</sub></p>
+
+## Containment test
+
+`demo/containment.sh` runs a scripted agent (plain bash) under `silent/silent.sh`: one allowed local request, then one outbound request to a non-allowlisted host. The proxy refuses the second and logs it, the run ends with a DSSE attestation, `verify.sh` checks it against the pinned keyid, and a copy with one flipped byte is shown failing. Real run, committed as `examples/containment_transcript.txt` (attestation `examples/containment.dsse.json`, log `examples/containment.silent.log.jsonl`):
+
+```
+BLOCKED example.com  at 2026-11-08T23:40:09Z
+...
+OK
+...
+FAIL (tampered copy rejected)
+```
+
+Limits: proxy-honouring traffic only (a process that ignores proxy settings or opens raw sockets is not seen), and no kernel or firewall enforcement is claimed. Re-run with `bash tests/test_containment.sh` (needs `mitmdump`).

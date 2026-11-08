@@ -55,3 +55,14 @@ def make_envelope(statement, priv):
             }
         ],
     }
+
+
+def scrub_arg(a):
+    """Reduce a filesystem path argument to its basename; flags, URLs and plain words are unchanged."""
+    import re
+
+    if "://" in a or a.startswith("-"):
+        return a
+    if re.match(r"^[A-Za-z]:[\\/]", a) or a.startswith(("/", "./", "../", "~")) or "\\" in a:
+        return re.split(r"[\\/]", a.rstrip("\\/"))[-1]
+    return a

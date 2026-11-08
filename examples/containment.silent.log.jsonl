@@ -1,0 +1,2 @@
+{"action": "allowed", "bytes": 0, "host": "127.0.0.1", "method": "GET", "path": "/", "stage": "request", "ts": 1794181209.3388624}
+{"action": "blocked", "bytes": 0, "host": "example.com", "method": "CONNECT", "path": "", "stage": "connect", "ts": 1794181209.5457618}
