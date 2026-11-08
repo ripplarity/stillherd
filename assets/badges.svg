@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="604" height="22" viewBox="0 0 604 22" role="img" aria-label="bash and python3, coding-agent hooks, DSSE signed attestations, Apache-2.0">
+  <style>text{font:600 11px -apple-system,Segoe UI,Helvetica,Arial,sans-serif;fill:#fff}</style>
+  <rect x="0" y="0" width="112" height="22" rx="4" fill="#14306B"/><text x="56" y="15" text-anchor="middle">bash &#183; python3</text>
+  <rect x="118" y="0" width="140" height="22" rx="4" fill="#2A1B6E"/><text x="188" y="15" text-anchor="middle">coding-agent hooks</text>
+  <rect x="264" y="0" width="214" height="22" rx="4" fill="#0B4A55"/><text x="371" y="15" text-anchor="middle">DSSE &#183; ed25519-signed attestations</text>
+  <rect x="484" y="0" width="120" height="22" rx="4" fill="#2E7D5B"/><text x="544" y="15" text-anchor="middle">Apache-2.0</text>
+</svg>
