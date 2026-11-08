@@ -1,4 +1,4 @@
-gh-cli   v2.103.3   gh_2.103.3_linux_arm64.tar.gz verified=True installed=False
-hugo     v0.169.0   hugo_0.169.0_linux-arm64.tar.gz verified=True installed=False
-receipt: results\receipt_20261108T074036Z_dryrun.json
+obtainium v1.7.4     app-arm64-v8a-release.apk verified=True installed=False
+newpipe  0.29.1     org.schabi.newpipe_1015_cb84069.apk verified=True installed=False
+receipt: results\receipt_20261108T074239Z_dryrun.json
 verified 2/2

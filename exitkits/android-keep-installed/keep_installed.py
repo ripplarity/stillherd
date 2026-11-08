@@ -51,7 +51,71 @@ def find_hash(text, asset_name):
     return None
 
 
+_FD = {}
+
+
+def fdroid_latest(pkg):
+    """Newest version of pkg from the F-Droid index: (versionName, file name, sha256)."""
+    if "idx" not in _FD:
+        _FD["idx"] = json.loads(
+            get(
+                "https://f-droid.org/repo/index-v2.json",
+                {"User-Agent": "keep-installed/1"},
+            )
+        )
+    vs = _FD["idx"]["packages"][pkg]["versions"]
+    x = vs[max(vs, key=lambda h: vs[h]["manifest"]["versionCode"])]
+    return (
+        x["manifest"]["versionName"],
+        x["file"]["name"].lstrip("/"),
+        x["file"]["sha256"].lower(),
+    )
+
+
+def _download_check(rec, url, path, expected):
+    h = hashlib.sha256()
+    req = urllib.request.Request(url, headers={"User-Agent": "keep-installed/1"})
+    with urllib.request.urlopen(req, timeout=300) as r, open(path, "wb") as f:
+        while True:
+            b = r.read(1 << 20)
+            if not b:
+                break
+            h.update(b)
+            f.write(b)
+    rec["sha256"] = h.hexdigest()
+    rec["verified"] = rec["sha256"] == expected
+    if not rec["verified"]:
+        rec["error"] = "sha256 mismatch; refusing"
+        return rec, None
+    return rec, path
+
+
+def process_fdroid(app, tmp):
+    rec = {
+        "name": app.get("name"),
+        "repo": "fdroid:%s" % app.get("fdroid_package"),
+        "version": None,
+        "asset": None,
+        "sha256": None,
+        "verified": False,
+        "installed": False,
+    }
+    try:
+        rec["version"], rec["asset"], expected = fdroid_latest(app["fdroid_package"])
+        return _download_check(
+            rec,
+            "https://f-droid.org/repo/" + rec["asset"],
+            os.path.join(tmp, rec["asset"]),
+            expected,
+        )
+    except Exception as e:
+        rec["error"] = "%s: %s" % (type(e).__name__, e)
+        return rec, None
+
+
 def process(app, tmp):
+    if app.get("expected_sha256_source") == "fdroid":
+        return process_fdroid(app, tmp)
     rec = {
         "name": app.get("name"),
         "repo": app.get("github_repo"),
@@ -107,7 +171,15 @@ def process(app, tmp):
 
 
 def adb(args, serial=None):
-    cmd = ["adb"] + (["-s", serial] if serial else []) + args
+    here = os.path.dirname(os.path.abspath(__file__))
+    local = os.path.join(
+        here, "tools", "platform-tools", "adb.exe" if os.name == "nt" else "adb"
+    )
+    cmd = (
+        [local if os.path.exists(local) else "adb"]
+        + (["-s", serial] if serial else [])
+        + args
+    )
     return subprocess.run(cmd, capture_output=True, text=True, timeout=600)
 
 
@@ -159,16 +231,16 @@ def main():
     if not a.dry_run:
         try:
             s = a.serial or adb(["get-serialno"]).stdout.strip()
-        except (FileNotFoundError, subprocess.SubprocessError) as e:
-            print("adb unavailable: %s" % e)
-            return 2
+        except (FileNotFoundError, subprocess.SubprocessError):
+            s = ""
         if not s or s == "unknown":
             print(
-                "no authorised adb device; use --dry-run or connect via USB / wireless debugging"
+                "no authorised adb device attached; continuing as --dry-run (fetch + verify only, nothing installed)"
             )
-            return 2
-        a.serial = s
-        serial_hash = hashlib.sha256(s.encode()).hexdigest()
+            a.dry_run = True
+        else:
+            a.serial = s
+            serial_hash = hashlib.sha256(s.encode()).hexdigest()
     out_apps, ok = [], 0
     with tempfile.TemporaryDirectory() as tmp:
         for app in apps:

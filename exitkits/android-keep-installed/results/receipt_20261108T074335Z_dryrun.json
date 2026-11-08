@@ -1,0 +1,31 @@
+{
+  "version": "stillherd-keep-installed-1",
+  "started": "2026-11-08T07:43:22Z",
+  "ended": "2026-11-08T07:43:35Z",
+  "dry_run": true,
+  "device_serial_sha256": null,
+  "apps": [
+    {
+      "name": "obtainium",
+      "repo": "ImranR98/Obtainium",
+      "version": "v1.7.4",
+      "asset": "app-arm64-v8a-release.apk",
+      "sha256": "f9216f721a7713b75929e0806bc18586f8fcf7328fbbff99b6aef1debb9eef80",
+      "verified": true,
+      "installed": false
+    },
+    {
+      "name": "newpipe",
+      "repo": "fdroid:org.schabi.newpipe",
+      "version": "0.29.1",
+      "asset": "org.schabi.newpipe_1015_cb84069.apk",
+      "sha256": "18447bfb1e06d113edc88df93f471827280de06f6f3d4dc42f56f28b9c1bab79",
+      "verified": true,
+      "installed": false
+    }
+  ],
+  "adb_version": "Android Debug Bridge version 1.0.41",
+  "pubkey": "ryOeArTjXr0HI5CcHPKyc49406nY0XBvq2UkQAoopK8=",
+  "pubkey_sha256": "01c52d15d4cb911126638c31b8e38d304da65bfb1d89d57c0825ffd71540b8fe",
+  "signature": "6V/+b4VUlFS/ZL4HmSQRr6H5hxP0Ds5k5tb/YTifn+wm183GHvArO3PeFilmFOhtgWszeU+bSPvB0d+6OivaBw=="
+}

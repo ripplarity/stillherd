@@ -25,22 +25,23 @@ How that applies to ADB installs of any given app is UNTESTED here; this kit mak
 
 ## Limits
 
-- No device test was done (no adb binary or device on the build machine); the `adb install -r` path and `installed=true` receipts are untested.
+- No Android device test was done; the `adb install -r` path and `installed=true` receipts are untested. A local `adb` (platform-tools 37.0.1) runs (`adb version` exits 0), but no device was attached.
+- With no authorised device attached, a run without `--dry-run` prints a message, falls back to fetch + verify only, writes `installed=false`, and exits 0.
 - Split APKs / app bundles are not handled (single-file assets only).
-- Only the `latest` GitHub release is used; pre-releases are skipped by GitHub's `latest`.
-- A hash published in the same release as the file proves integrity against corruption and a swapped mirror, not against a compromised publisher account.
-- The sample list uses two non-APK release archives (a linux arm64 tarball from each of two projects) because they ship checksum files; it demonstrates fetch and hash verification, not an install.
+- Only the `latest` GitHub release is used. Two hash sources: a publisher `.sha256` asset in the release (`expected_sha256_url`), or `"expected_sha256_source": "fdroid"` with `fdroid_package`, which reads the hash from f-droid.org `index-v2.json` (about 72 MB download per run) and downloads the APK from f-droid.org/repo.
+- A hash published beside the file proves integrity against corruption and a swapped mirror, not against a compromised publisher account.
+- `tools/` (gitignored) holds platform-tools from dl.google.com/android/repository/platform-tools-latest-windows.zip. Google's platform-tools release page lists no SHA-256 (searched the fetched page), so the observed hash is recorded instead: 45f4d63113e895ebde0c90f194099a4676b6ac653bd28d54314a9e022bbc1a99 (fetched 2026-11-07). It is not a publisher-verified value.
 - Prior art exists for each ingredient (release-fetch installers, hash checks, signed receipts); the bundle is not claimed as first.
 
 ## Dry-run transcript
 
-`python keep_installed.py --dry-run --apps sample_apps.json` (exit 0; files in `results/`):
+`python keep_installed.py --dry-run --apps sample_apps.json` (exit 0; files in `results/`). Samples: Obtainium (GitHub release, `.sha256` asset) and NewPipe (F-Droid index hash):
 
 ```
-gh-cli   v2.103.3   gh_2.103.3_linux_arm64.tar.gz verified=True installed=False
-hugo     v0.169.0   hugo_0.169.0_linux-arm64.tar.gz verified=True installed=False
-receipt: results/receipt_20261108T074036Z_dryrun.json
+obtainium v1.7.4     app-arm64-v8a-release.apk verified=True installed=False
+newpipe  0.29.1     org.schabi.newpipe_1015_cb84069.apk verified=True installed=False
+receipt: results/receipt_20261108T074239Z_dryrun.json
 verified 2/2
 ```
 
-`python verify_receipt.py results/receipt_20261108T074036Z_dryrun.json` prints `OK`.
+`python verify_receipt.py results/receipt_20261108T074239Z_dryrun.json` prints `OK`.

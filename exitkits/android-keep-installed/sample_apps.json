@@ -1,4 +1,4 @@
 [
-  {"name": "gh-cli", "github_repo": "cli/cli", "apk_pattern": "gh_*_linux_arm64.tar.gz", "expected_sha256_url": "gh_*_checksums.txt"},
-  {"name": "hugo", "github_repo": "gohugoio/hugo", "apk_pattern": "hugo_0*_linux-arm64.tar.gz", "expected_sha256_url": "hugo_*_checksums.txt"}
+  {"name": "obtainium", "github_repo": "ImranR98/Obtainium", "apk_pattern": "app-arm64-v8a-release.apk", "expected_sha256_url": "app-arm64-v8a-release.apk.sha256"},
+  {"name": "newpipe", "expected_sha256_source": "fdroid", "fdroid_package": "org.schabi.newpipe"}
 ]
