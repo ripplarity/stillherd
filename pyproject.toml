@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stillherd"
+version = "0.1.0"
+description = "Stillherd: guardrails, attestation verification and the day screen for coding agents"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = ["cryptography"]
+authors = [{ name = "Ripplarity Inc.", email = "code@ripplarity.com" }]
+
+[project.urls]
+Homepage = "https://stillherd.com"
+Source = "https://github.com/ripplarity/stillherd"
+
+[project.scripts]
+stillherd-verify = "stillherd_py.cli:_v"
+stillherd-today = "stillherd_py.cli:_t"
+
+[tool.setuptools]
+packages = ["stillherd_py", "stillherd_py._silent", "stillherd_py._bin"]
+
+[tool.setuptools.package-dir]
+"stillherd_py._silent" = "silent"
+"stillherd_py._bin" = "bin"

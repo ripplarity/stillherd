@@ -7,3 +7,6 @@
 egress/requests.jsonl
 __pycache__/
 *.pyc
+dist/
+build/
+*.egg-info
