@@ -25,7 +25,8 @@ KNOWN = {
     BASE + "sovkit/inventory/v1",
     BASE + "sovkit/drill/v1",
     BASE + "aiescrow/manifest/v1",
-    BASE + "nukekit/mirror/v1",
+    BASE + "dejaspawn/mirror/v1",
+    BASE + "nukekit/mirror/v1",  # deprecated alias of dejaspawn/mirror/v1; still known
     BASE + "stillherd/silent/v1",
 }
 RUN_MODES = {"REAL", "MOCK", "FIXTURE", "DRY-RUN"}
@@ -84,7 +85,9 @@ def main(argv=None) -> int:
     ap.add_argument("envelope")
     ap.add_argument("--key", required=True)
     ap.add_argument("--check-subjects", metavar="DIR")
-    ap.add_argument("--expect-keyid", metavar="HEX", help="pin: signing key must have this keyid")
+    ap.add_argument(
+        "--expect-keyid", metavar="HEX", help="pin: signing key must have this keyid"
+    )
     a = ap.parse_args(argv)
     try:
         env = json.load(open(a.envelope, encoding="utf-8"))
@@ -101,7 +104,9 @@ def main(argv=None) -> int:
         # a key found beside the artefact is untrusted unless it matches the pinned keyid
         by_id = {i: k for i, k in by_id.items() if i == a.expect_keyid.lower()}
         if not by_id:
-            print("INVALID: supplied key does not match --expect-keyid", file=sys.stderr)
+            print(
+                "INVALID: supplied key does not match --expect-keyid", file=sys.stderr
+            )
             return 2
     elif os.path.dirname(os.path.abspath(a.key)) == os.path.dirname(
         os.path.abspath(a.envelope)
