@@ -1,0 +1,4 @@
+TURN 1 rc=0 out_bytes=594
+TURN 2 rc=0 out_bytes=475
+TURN 3 rc=0 out_bytes=733
+TURN 4 rc=0 out_bytes=382

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Record every outbound request Claude Code makes during the fixed scripted session (session.txt), 2 runs.
-# Host run (existing login reused in place; credentials are never copied). Writes results/claude-code.run{1,2}.jsonl.
+# Host run (existing login reused in place; credentials are never copied). Writes results/claude-code_<version>_run{1,2}.jsonl.
 # Request/response bodies are never stored: log_requests.py keeps host, path, method, byte count, content type only.
 set -u
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -12,7 +12,7 @@ mkdir -p "$HERE/results/sessions"
 PORT=8080
 CA="$HOME/.mitmproxy/mitmproxy-ca-cert.pem"
 for n in 1 2; do
-  OUT="$HERE/results/claude-code.run$n.jsonl"; : > "$OUT"
+  OUT="$HERE/results/claude-code_${VERSION}_run$n.jsonl"; : > "$OUT"
   export EGRESS_TOOL=claude-code EGRESS_VERSION="$VERSION" EGRESS_OUT="$OUT"
   mitmdump --listen-host 127.0.0.1 --listen-port $PORT -q -s "$HERE/log_requests.py" &
   MPID=$!
