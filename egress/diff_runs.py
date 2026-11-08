@@ -76,6 +76,10 @@ def main():
                 "# Egress changelog\n\nOne section per comparison of two result files. Counts are proxy-visible requests; bytes are request bytes.\n\n"
             )
         f.write(text + "\n")
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import feed
+
+    feed.build()
 
 
 if __name__ == "__main__":

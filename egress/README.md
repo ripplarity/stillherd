@@ -33,3 +33,12 @@ If a client pins certificates or does not trust the mitmproxy CA, the TLS handsh
 `stillherd audit <claude|aider|opencode|goose>` runs the host harness twice (default, then the opt-out variables listed in `audit.sh`) and appends a per-host table to `results/AUDITS.md`. It refuses to run without `mitmdump` and prints the install command. `claude` uses `run_claude.sh` and `run_claude_optout.sh`; Opt-out variables, from official docs fetched 2026-11-08: aider `AIDER_ANALYTICS_DISABLE=1` (flag `--analytics-disable`; https://aider.chat/docs/config/options.html, https://aider.chat/docs/more/analytics.html); goose `GOOSE_TELEMETRY_ENABLED=false` (https://goose-docs.ai/docs/guides/environment-variables, https://goose-docs.ai/docs/guides/usage-data); opencode: no documented opt-out (checked https://opencode.ai/docs/config/, https://opencode.ai/docs/cli/ and https://opencode.ai/docs/troubleshooting/ on 2026-11-08); claude: the two variables in `run_claude_optout.sh` (docs not fetched here). `claude` uses `run_claude.sh` and `run_claude_optout.sh`; `opencode` uses `run_tool.sh`; `aider` and `goose` have no host harness, so use `clean_run.sh` and then `stillherd audit <tool> --from RUN1 RUN2`. Fixture mode (`--from RUN1 RUN2`) needs no proxy: `tests/test_audit.sh`.
 
 `.github/workflows/versions.yml` runs `watch_versions.sh` daily (no harness, no secrets, no login; only `GITHUB_TOKEN` with `issues: write`) and opens or updates one issue titled `New tool version: <tool> <old> -> <new>` with a run checklist. The harness itself never runs in CI: the login and the subscription stay on the maintainer machine, who runs it locally and pushes the diff.
+
+## Subscribe to egress changes
+
+Feeds list each recorded diff (hosts added and removed, request counts, bytes, version numbers):
+
+- https://raw.githubusercontent.com/ripplarity/stillherd/main/egress/results/feed.xml (RSS 2.0)
+- https://raw.githubusercontent.com/ripplarity/stillherd/main/egress/results/feed.json
+
+Items are regenerated from committed logs only (`python egress/feed.py`, also run at the end of `diff_runs.py`).
