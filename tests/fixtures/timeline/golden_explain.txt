@@ -1,0 +1,7 @@
+stillherd explain fx/demo
+why terminated: ledger end status=failed [activity_ledger.jsonl:4]; run state=failed restarts=1 [runs/fx__demo.json]
+why blocked: 1 request(s) refused by the allowlist proxy: example.com [silent.log.jsonl:2]
+who held GPU/cores: cpu cores=4 [cpu.leases.json:id=100-1]
+which claims passed: claim c1: PASS verdict=survived [claims_verified.jsonl:1] (matched by project and time window)
+which claims passed: claim c2: UNKNOWN (no verify result) (matched by project and time window)
+Unknown is reported as UNKNOWN, never as a pass; no prompts, code or bodies are collected.

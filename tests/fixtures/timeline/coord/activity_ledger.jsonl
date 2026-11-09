@@ -1,0 +1,4 @@
+{"event": "start", "id": "100-1", "incarnation": 1, "job_key": "fx/demo", "pid": 100, "project": "fxproj", "resource": "cpu", "session": "fx-sess", "task": "SECRET-TASK-TEXT", "ts": 1800000000}
+{"event": "heartbeat", "id": "100-1", "ts": 1800000010}
+{"event": "rebind", "id": "100-1", "pid": 200, "ts": 1800000020}
+{"event": "end", "id": "100-1", "note": "SECRET-NOTE", "status": "failed", "ts": 1800000300}

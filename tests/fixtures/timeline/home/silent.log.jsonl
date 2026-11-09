@@ -1,0 +1,2 @@
+{"action": "allowed", "bytes": 120, "host": "127.0.0.1", "method": "GET", "path": "/SECRET-PATH", "ts": 1800000030}
+{"action": "blocked", "bytes": 0, "host": "example.com", "method": "CONNECT", "path": "", "ts": 1800000040}

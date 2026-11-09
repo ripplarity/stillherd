@@ -1,0 +1,13 @@
+stillherd timeline fx/demo (UTC)
+2027-01-15T08:00:00Z  start     run started: id=100-1 job_key=fx/demo project=fxproj resource=cpu pid=100  [activity_ledger.jsonl:1]
+2027-01-15T08:00:02Z  lease     cpu lease claimed: cores=4 id=100-1  [cpu.leases.json:id=100-1]
+2027-01-15T08:00:05Z  attest    attestation keyid=abababababababab subjects=silent.log.jsonl (signature not checked here; use verify.sh)  [fx.dsse.json]
+2027-01-15T08:00:20Z  proc-tree pid rebound to 200  [activity_ledger.jsonl:3]
+2027-01-15T08:00:30Z  egress    allowed 127.0.0.1 bytes=120  [silent.log.jsonl:1]
+2027-01-15T08:00:40Z  egress    blocked example.com bytes=0  [silent.log.jsonl:2]
+2027-01-15T08:00:50Z  egress    request:POST api.example.net bytes=900  [e1.jsonl:1]
+2027-01-15T08:02:00Z  claim     recorded id=c1  [claims.jsonl:1]
+2027-01-15T08:03:00Z  claim     recorded id=c2  [claims.jsonl:2]
+2027-01-15T08:04:00Z  claim     verified id=c1 verdict=survived claimed_done=True  [claims_verified.jsonl:1]
+2027-01-15T08:05:00Z  end       run ended: status=failed  [activity_ledger.jsonl:4]
+2027-01-15T08:05:01Z  run-state state=failed incarnation=1 restarts=1 mem_peak_mb=512  [runs/fx__demo.json]

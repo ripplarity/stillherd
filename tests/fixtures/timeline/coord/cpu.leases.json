@@ -1,0 +1,12 @@
+{
+ "version": 1,
+ "leases": [
+  {
+   "id": "100-1",
+   "job_key": "fx/demo",
+   "cores": 4,
+   "started_at": 1800000002,
+   "purpose": "SECRET-PURPOSE"
+  }
+ ]
+}

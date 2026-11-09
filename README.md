@@ -174,3 +174,36 @@ FAIL (tampered copy rejected)
 ```
 
 Limits: proxy-honouring traffic only (a process that ignores proxy settings or opens raw sockets is not seen), and no kernel or firewall enforcement is claimed. Re-run with `bash tests/test_containment.sh` (needs `mitmdump`).
+
+## Timeline and explain
+
+`stillherd timeline RUN_ID` (a run_leased job key or ledger id; or `--since <UTC>` for the latest run since then) prints one chronological view built only from records Stillherd already writes: ledger start/end, pid rebinds, leases, silent/egress rows, claims and their verify results, attestations. Every row ends with its source (file and line, or key). `stillherd explain RUN_ID` answers four questions: why terminated, why blocked, who held the GPU or cores, which claims passed. It adds no collection; run-recorders such as AgentOps, Langfuse and agent-blackbox exist, and this is a module over the files above.
+
+Unknown is reported as UNKNOWN, never as a pass; no prompts, code or bodies are collected.
+
+The exact fields read are listed at the top of `bin/timeline.py`; each record is reduced to that whitelist when parsed. Output on the committed fixture records under `tests/fixtures/timeline/` (the same files `tests/test_timeline.sh` compares against; the run is synthetic, dated 2027 on purpose):
+
+```
+stillherd timeline fx/demo (UTC)
+2027-01-15T08:00:00Z  start     run started: id=100-1 job_key=fx/demo project=fxproj resource=cpu pid=100  [activity_ledger.jsonl:1]
+2027-01-15T08:00:02Z  lease     cpu lease claimed: cores=4 id=100-1  [cpu.leases.json:id=100-1]
+2027-01-15T08:00:05Z  attest    attestation keyid=abababababababab subjects=silent.log.jsonl (signature not checked here; use verify.sh)  [fx.dsse.json]
+2027-01-15T08:00:20Z  proc-tree pid rebound to 200  [activity_ledger.jsonl:3]
+2027-01-15T08:00:30Z  egress    allowed 127.0.0.1 bytes=120  [silent.log.jsonl:1]
+2027-01-15T08:00:40Z  egress    blocked example.com bytes=0  [silent.log.jsonl:2]
+2027-01-15T08:00:50Z  egress    request:POST api.example.net bytes=900  [e1.jsonl:1]
+2027-01-15T08:02:00Z  claim     recorded id=c1  [claims.jsonl:1]
+2027-01-15T08:03:00Z  claim     recorded id=c2  [claims.jsonl:2]
+2027-01-15T08:04:00Z  claim     verified id=c1 verdict=survived claimed_done=True  [claims_verified.jsonl:1]
+2027-01-15T08:05:00Z  end       run ended: status=failed  [activity_ledger.jsonl:4]
+2027-01-15T08:05:01Z  run-state state=failed incarnation=1 restarts=1 mem_peak_mb=512  [runs/fx__demo.json]
+stillherd explain fx/demo
+why terminated: ledger end status=failed [activity_ledger.jsonl:4]; run state=failed restarts=1 [runs/fx__demo.json]
+why blocked: 1 request(s) refused by the allowlist proxy: example.com [silent.log.jsonl:2]
+who held GPU/cores: cpu cores=4 [cpu.leases.json:id=100-1]
+which claims passed: claim c1: PASS verdict=survived [claims_verified.jsonl:1] (matched by project and time window)
+which claims passed: claim c2: UNKNOWN (no verify result) (matched by project and time window)
+Unknown is reported as UNKNOWN, never as a pass; no prompts, code or bodies are collected.
+```
+
+Stillherd protects the execution of work; Deja Spawn protects the systems behind it.

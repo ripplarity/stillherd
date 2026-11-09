@@ -1,0 +1,11 @@
+{
+ "job_key": "fx/demo",
+ "status": "failed",
+ "incarnation": 1,
+ "restarts": 1,
+ "mem_peak_mb": 512,
+ "updated": 1800000301,
+ "cmd": [
+  "SECRET-CMD"
+ ]
+}

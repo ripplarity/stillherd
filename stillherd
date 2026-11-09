@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# stillherd: one-screen status. Usage: stillherd status | today | audit <tool>
+# stillherd: one-screen status. Usage: stillherd status | today | timeline | explain | audit <tool>
 HOOKS="$(cd "$(dirname "$0")/../hooks" 2>/dev/null && pwd)"
 PY=python3; command -v python3 >/dev/null 2>&1 || PY=python
 section() {  # title, script, args...
@@ -23,11 +23,16 @@ case "${1:-status}" in
     T="$D/today.py"; [ -f "$T" ] || T="$D/bin/today.py"
     [ -f "$T" ] || { echo "today.py not found next to this script" >&2; exit 1; }
     exec "$PY" "$T" "$@" ;;
+  timeline|explain)
+    D="$(cd "$(dirname "$0")" && pwd)"
+    T="$D/timeline.py"; [ -f "$T" ] || T="$D/bin/timeline.py"
+    [ -f "$T" ] || { echo "timeline.py not found next to this script" >&2; exit 1; }
+    exec "$PY" -I "$T" "$@" ;;
   audit)
     shift; D="$(cd "$(dirname "$0")" && pwd)"
     A="${STILLHERD_REPO:-$D}/egress/audit.sh"
     [ -f "$A" ] || { echo "audit needs a stillherd repo checkout: set STILLHERD_REPO=/path/to/checkout" >&2; exit 1; }
     exec bash "$A" "$@" ;;
-  *) echo "usage: stillherd status | today [YYYY-MM-DD] | audit <claude|aider|opencode|goose> [--from RUN1 RUN2]" >&2; exit 2 ;;
+  *) echo "usage: stillherd status | today [YYYY-MM-DD] | timeline RUN_ID|--since UTC | explain RUN_ID | audit <claude|aider|opencode|goose> [--from RUN1 RUN2]" >&2; exit 2 ;;
 esac
 exit 0
