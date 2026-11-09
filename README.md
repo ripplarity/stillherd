@@ -53,7 +53,7 @@
 git clone https://github.com/ripplarity/stillherd.git && cd stillherd
 bash install.sh /path/to/your/project              # hooks + the stillherd CLI into .claude/
 /path/to/your/project/.claude/bin/stillherd status # leases, ledger, orphans, claims on one screen
-/path/to/your/project/.claude/bin/stillherd today  # the day: processes, hosts, bytes out, claims; writes ~/.stillherd/days/<date>.dsse.json (tests/test_today.sh) (the day predicateType is pending in the spec KNOWN list: verify.sh prints VALID-SIGNATURE and exits 5 until the spec copy is updated)
+/path/to/your/project/.claude/bin/stillherd today  # the day: processes, hosts, bytes out, claims; writes ~/.stillherd/days/<date>.dsse.json (tests/test_today.sh) (the day predicateType is listed in attest-spec 1.4: verify.sh prints VALID-SIGNATURE, VALID and exits 0)
 STILLHERD_REPO=$PWD bash stillherd audit opencode --from RUN1.jsonl RUN2.jsonl  # default vs opt-out egress per host (tests/test_audit.sh)
 
 # run any agent command with only localhost allowed, and get a signed attestation

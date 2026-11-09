@@ -13,7 +13,7 @@ export STILLHERD_SILENT_LOG="$T/none.jsonl"
 DAY=2026-01-02
 # The pinned verifier is byte-identical to the spec copy and does not yet list the day predicateType, so it exits 5
 # (signature and subject digests valid, predicate not registered). Accept 0 or 5 with VALID-SIGNATURE.
-vday() { o="$(bash "$HERE/silent/verify.sh" "$1" "$(kid "$1")" 2>&1)"; r=$?; { [ $r -eq 0 ] || [ $r -eq 5 ]; } && printf '%s' "$o" | grep -q VALID-SIGNATURE; }
+vday() { o="$(bash "$HERE/silent/verify.sh" "$1" "$(kid "$1")" 2>&1)"; r=$?; [ $r -eq 0 ] && printf '%s' "$o" | grep -q VALID-SIGNATURE; }
 kid() { "$PY" -I -c 'import json,sys;print(json.load(open(sys.argv[1]))["signatures"][0]["keyid"])' "$1" | tr -d ''; }
 out="$(bash "$HERE/stillherd" today $DAY 2>&1)"; rc=$?
 [ $rc -eq 0 ] && [ "$(printf '%s\n' "$out" | grep -c 'none recorded')" -ge 4 ] && ok "empty data: none recorded, no crash" || bad "empty: rc=$rc $out"

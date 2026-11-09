@@ -27,7 +27,7 @@ SPEC="$HERE/../attest-spec/attest_verify.py"
 if [ -f "$SPEC" ]; then
   # the shipped verifier must be byte-identical to the spec REVISION this repo tracks (pinned below),
   # not to whatever the spec repo's HEAD is today; a moved spec HEAD is reported, not failed
-  SHIPPED_SPEC_SHA="0e5d6c62ee0f109e0afc165af5a0db730b29fd4dbf054685470d5a7728ae34ef"   # attest-spec revision 1.2
+  SHIPPED_SPEC_SHA="51da005156826521b9a55ecf2ad3b5eb2aeb8cf85fb9ba70f231bfce55403687"   # attest-spec revision 1.4
   MINE="$(sha256sum < "$HERE/silent/attest_verify.py" | cut -d' ' -f1)"
   [ "$MINE" = "$SHIPPED_SPEC_SHA" ] && ok "verifier byte-identical to the pinned spec revision" || bad "verifier differs from the pinned spec revision"
   HEAD_SHA="$(git -C "$HERE/../attest-spec" show HEAD:attest_verify.py 2>/dev/null | sha256sum | cut -d' ' -f1)"
