@@ -88,6 +88,14 @@ statement = {
     "predicate": predicate,
 }
 json.dump(make_envelope(statement, key), open(out, "w"), indent=2)
-print(
-    f"attestation: {out} attempts={len(attempts)} external_bytes_sent={forwarded_external} keyid={hashlib.sha256(pub).hexdigest()[:16]}"
-)
+_kid = hashlib.sha256(pub).hexdigest()[:16]
+if mode == "observe":
+    _req = sum(o["requests"] for o in observed)
+    print(
+        f"observed: {len(observed)} external host(s), {_req} request(s), {forwarded_external} bytes out"
+        f"\nattestation: {out} keyid={_kid}"
+    )
+else:
+    print(
+        f"attestation: {out} attempts={len(attempts)} external_bytes_sent={forwarded_external} keyid={_kid}"
+    )

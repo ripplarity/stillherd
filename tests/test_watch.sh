@@ -19,6 +19,10 @@ if [ $HAVE_NET -eq 1 ]; then
   SILENT_PORT="$(freeport)" out="$(bash "$HERE/stillherd" watch bash -c 'curl -s --ssl-no-revoke --cacert "$SSL_CERT_FILE" https://example.com -o /dev/null' 2>&1)"; rc=$?
   [ $rc -eq 0 ] && ok "(a) exit 0 passed through" || bad "(a) rc=$rc $out"
   printf '%s\n' "$out" | grep -E '^\| example\.com \| [1-9][0-9]* \|' >/dev/null && ok "(a) table has example.com with requests >= 1" || bad "(a) table: $out"
+  printf '%s\n' "$out" | grep -E '^observed: 1 external host\(s\), [1-9][0-9]* request\(s\), [0-9]+ bytes out$' >/dev/null && ok "(a) observed: summary line" || bad "(a) observed line: $out"
+  printf '%s' "$out" | grep -q "attempts=" && bad "(a) misleading attempts= line printed in observe mode"
+  SILENT_PORT="$(freeport)" out2="$(bash "$HERE/stillherd" watch curl -s https://example.com 2>&1)"
+  case "$out2" in *"TLS handshake(s) failed"*) printf '%s' "$out2" | grep -q 'hint: .*--cacert "$SSL_CERT_FILE".*--ssl-no-revoke' && ok "(a) TLS-failure hint printed with the fixes" || bad "(a) hint missing: $out2" ;; *) echo "info: this curl trusted the proxy CA (no TLS failure to hint on)" ;; esac
   cp "$T/watch.requests.jsonl" "$T/a.jsonl"; cp "$T/watch.attestation.dsse.json" "$T/a.dsse.json" 2>/dev/null
 else
   skip=$((skip+1)); echo "skip (a): no network to example.com; a local HTTPS server would be loopback, which the table hides by design"
