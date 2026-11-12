@@ -33,6 +33,12 @@ case "${1:-status}" in
     A="${STILLHERD_REPO:-$D}/egress/audit.sh"
     [ -f "$A" ] || { echo "audit needs a stillherd repo checkout: set STILLHERD_REPO=/path/to/checkout" >&2; exit 1; }
     exec bash "$A" "$@" ;;
-  *) echo "usage: stillherd status | today [YYYY-MM-DD] | timeline RUN_ID|--since UTC | explain RUN_ID | audit <claude|aider|opencode|goose> [--from RUN1 RUN2]" >&2; exit 2 ;;
+  watch)
+    shift; D="$(cd "$(dirname "$0")" && pwd)"
+    W="${STILLHERD_REPO:-$D}/silent/watch.sh"
+    [ -f "$W" ] || { echo "watch needs a stillherd repo checkout: set STILLHERD_REPO=/path/to/checkout" >&2; exit 1; }
+    [ $# -ge 1 ] || { echo "usage: stillherd watch <cmd...>" >&2; exit 2; }
+    exec bash "$W" "$@" ;;
+  *) echo "usage: stillherd status | today [YYYY-MM-DD] | timeline RUN_ID|--since UTC | explain RUN_ID | audit <claude|aider|opencode|goose> [--from RUN1 RUN2] | watch <cmd...>" >&2; exit 2 ;;
 esac
 exit 0

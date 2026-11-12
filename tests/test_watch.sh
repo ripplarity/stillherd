@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# stillherd watch: host table from a real run, empty-table message, exit-code pass-through, no body fields in the log,
+# attestation verifies (mode observe), missing mitmdump / missing command / busy port messages.
+# Needs network for (a); without it (a) is reported as skipped, not passed. Usage: bash tests/test_watch.sh
+HERE="$(cd "$(dirname "$0")/.." && pwd)"
+PY=python3; command -v python3 >/dev/null 2>&1 || PY=python
+T="$(mktemp -d)"; trap 'rm -rf "$T"' EXIT
+pass=0; fail=0; skip=0
+ok() { pass=$((pass+1)); echo "ok   $1"; }
+bad() { fail=$((fail+1)); echo "FAIL $1"; }
+export SILENT_KEY="$T/k.pem" SILENT_OUT="$T"
+freeport() { "$PY" -I -c 'import socket;s=socket.socket();s.bind(("127.0.0.1",0));print(s.getsockname()[1])'; }
+export PATH="$HOME/.local/bin:$PATH"
+command -v mitmdump >/dev/null 2>&1 || { echo "skip: mitmdump not installed (uv tool install mitmproxy); nothing run"; exit 0; }
+
+# (a) a real HTTPS request shows up as an external host row; the command's own exit code is passed through (0)
+HAVE_NET=1; "$PY" -I -c 'import socket;socket.create_connection(("example.com",443),timeout=5)' 2>/dev/null || HAVE_NET=0
+if [ $HAVE_NET -eq 1 ]; then
+  SILENT_PORT="$(freeport)" out="$(bash "$HERE/stillherd" watch bash -c 'curl -s --ssl-no-revoke --cacert "$SSL_CERT_FILE" https://example.com -o /dev/null' 2>&1)"; rc=$?
+  [ $rc -eq 0 ] && ok "(a) exit 0 passed through" || bad "(a) rc=$rc $out"
+  printf '%s\n' "$out" | grep -E '^\| example\.com \| [1-9][0-9]* \|' >/dev/null && ok "(a) table has example.com with requests >= 1" || bad "(a) table: $out"
+  cp "$T/watch.requests.jsonl" "$T/a.jsonl"; cp "$T/watch.attestation.dsse.json" "$T/a.dsse.json" 2>/dev/null
+else
+  skip=$((skip+1)); echo "skip (a): no network to example.com; a local HTTPS server would be loopback, which the table hides by design"
+fi
+
+# (b) no requests: empty-table message
+SILENT_PORT="$(freeport)" out="$(bash "$HERE/stillherd" watch true 2>&1)"; rc=$?
+[ $rc -eq 0 ] && printf '%s' "$out" | grep -q "no external requests observed" && ok "(b) empty table message" || bad "(b) rc=$rc $out"
+cp "$T/watch.requests.jsonl" "$T/b.jsonl"; cp "$T/watch.attestation.dsse.json" "$T/b.dsse.json" 2>/dev/null
+
+# (c) non-zero exit passed through, table still printed
+SILENT_PORT="$(freeport)" out="$(bash "$HERE/stillherd" watch bash -c 'exit 7' 2>&1)"; rc=$?
+[ $rc -eq 7 ] && printf '%s' "$out" | grep -q "no external requests observed" && ok "(c) exit 7 passed through, table printed" || bad "(c) rc=$rc $out"
+
+# (d) the log has only metadata fields, never bodies
+if [ -f "$T/a.jsonl" ]; then L="$T/a.jsonl"; else L="$T/b.jsonl"; fi
+"$PY" -I -c 'import json,sys
+ok={"ts","tool","version","host","path","method","bytes","content_type","canary"}
+rows=[json.loads(l) for l in open(sys.argv[1]) if l.strip()]
+bad=[k for r in rows for k in r if k not in ok or k in ("body","content","text","response","headers","raw")]
+sys.exit(1 if bad else 0)' "$L" && ok "(d) log rows carry no body/header/response fields" || bad "(d) unexpected fields in $L"
+
+# (e) the attestation verifies with its own pinned keyid and says mode observe; else the documented fallback applies
+D="$T/b.dsse.json"; [ -f "$T/a.dsse.json" ] && D="$T/a.dsse.json"
+if [ -f "$D" ]; then
+  KID="$("$PY" -I -c 'import json,sys;print(json.load(open(sys.argv[1]))["signatures"][0]["keyid"])' "$D")"
+  cp "$D" "$T/watch.attestation.dsse.json"; cp "$L" "$T/watch.requests.jsonl"
+  out="$(bash "$HERE/silent/verify.sh" "$T/watch.attestation.dsse.json" "$KID" 2>&1)"
+  case "$out" in *VALID-SIGNATURE*OK) ok "(e) attestation verifies" ;; *) bad "(e) verify: $out" ;; esac
+  m="$("$PY" -I -c 'import json,base64,sys;p=json.loads(base64.b64decode(json.load(open(sys.argv[1]))["payload"]))["predicate"];print(p["mode"],p["enforcement"])' "$D")"
+  [ "$m" = "observe none" ] && ok "(e) predicate says mode observe, enforcement none" || bad "(e) predicate mode: $m"
+else
+  echo "info (e): no attestation written (documented fallback: log and table only); cryptography package missing?"; bad "(e) no attestation file"
+fi
+
+# failure messages
+out="$(env PATH=/nonexistent HOME=/nonexistent SILENT_MODE=observe "$BASH" "$HERE/silent/silent.sh" true 2>&1)"; rc=$?
+[ $rc -eq 1 ] && printf '%s' "$out" | grep -q "uv tool install mitmproxy" && ok "missing mitmdump: says how to install" || bad "mitmdump refusal rc=$rc $out"
+out="$(bash "$HERE/stillherd" watch no-such-command-xyz 2>&1)"; rc=$?
+[ $rc -eq 127 ] && printf '%s' "$out" | grep -q "command not found: no-such-command-xyz" && ok "unknown command: clear message, rc 127" || bad "unknown command rc=$rc $out"
+BUSY="$(freeport)"
+"$PY" -I -c 'import socket,sys,time;s=socket.socket();s.bind(("127.0.0.1",int(sys.argv[1])));s.listen(1);time.sleep(60)' "$BUSY" & HOLD=$!
+sleep 1
+out="$(SILENT_PORT="$BUSY" bash "$HERE/stillherd" watch true 2>&1)"; rc=$?
+kill $HOLD 2>/dev/null
+[ $rc -eq 0 ] && printf '%s' "$out" | grep -q "port $BUSY busy" && ok "busy port: next free port used" || bad "busy port rc=$rc $out"
+bash "$HERE/stillherd" watch >/dev/null 2>&1; [ $? -eq 2 ] && ok "watch without a command: usage, rc 2" || bad "usage rc"
+echo "$pass passed, $fail failed, $skip skipped"; [ $fail -eq 0 ]

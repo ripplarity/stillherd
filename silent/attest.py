@@ -20,17 +20,31 @@ rows = (
     else []
 )
 allowset = {h.strip().lower() for h in allow.split(",") if h.strip()}
-attempts = [
-    {"host": r["host"], "path": r["path"], "ts": r["ts"]}
-    for r in rows
-    if r["action"] in ("blocked", "tls-failed")
-]
-forwarded_external = sum(
-    r["bytes"]
-    for r in rows
-    if r["action"] == "allowed" and r["host"].lower() not in allowset
-)
-blocked_bytes = sum(r["bytes"] for r in rows if r["action"] == "blocked")
+mode = os.environ.get("SILENT_MODE", "silent")
+observed = []
+if mode == "observe":
+    # watch.sh: nothing was blocked; rows come from egress/log_requests.py (no "action" field)
+    sys.path.insert(
+        0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "egress")
+    )
+    from watch_summary import summarize
+
+    observed = summarize(rows)
+    attempts = []
+    forwarded_external = sum(o["bytes_out"] for o in observed)
+    blocked_bytes = 0
+else:
+    attempts = [
+        {"host": r["host"], "path": r["path"], "ts": r["ts"]}
+        for r in rows
+        if r["action"] in ("blocked", "tls-failed")
+    ]
+    forwarded_external = sum(
+        r["bytes"]
+        for r in rows
+        if r["action"] == "allowed" and r["host"].lower() not in allowset
+    )
+    blocked_bytes = sum(r["bytes"] for r in rows if r["action"] == "blocked")
 key = load_key()
 pub = key.public_key().public_bytes(
     serialization.Encoding.Raw, serialization.PublicFormat.Raw
@@ -38,7 +52,10 @@ pub = key.public_key().public_bytes(
 
 log_bytes = open(log, "rb").read() if os.path.exists(log) else b""
 predicate = {
-    "producer": {"tool": "stillherd-silent", "version": "1"},
+    "producer": {
+        "tool": "stillherd-watch" if mode == "observe" else "stillherd-silent",
+        "version": "1",
+    },
     "started": started,
     "ended": ended,
     "environment": {
@@ -51,8 +68,14 @@ predicate = {
     "external_attempts": attempts,
     "external_bytes_sent": forwarded_external,
     "blocked_request_bytes": blocked_bytes,
+    "mode": mode,
     "pubkey_hex": pub.hex(),
 }
+if mode == "observe":
+    # observe-mode reading of the shared fields: nothing was blocked, so external_attempts and blocked_request_bytes are
+    # empty/0 BY DESIGN; the hosts that were reached are in observed_external (host, requests, bytes_out, rule).
+    predicate["enforcement"] = "none"
+    predicate["observed_external"] = observed
 statement = {
     "_type": "https://in-toto.io/Statement/v1",
     "subject": [

@@ -55,6 +55,7 @@ bash install.sh /path/to/your/project              # hooks + the stillherd CLI i
 /path/to/your/project/.claude/bin/stillherd status # leases, ledger, orphans, claims on one screen
 /path/to/your/project/.claude/bin/stillherd today  # the day: processes, hosts, bytes out, claims; writes ~/.stillherd/days/<date>.dsse.json (tests/test_today.sh) (the day predicateType is listed in attest-spec 1.4: verify.sh prints VALID-SIGNATURE, VALID and exits 0)
 STILLHERD_REPO=$PWD bash stillherd audit opencode --from RUN1.jsonl RUN2.jsonl  # default vs opt-out egress per host (tests/test_audit.sh)
+bash stillherd watch curl -s https://example.com   # blocks nothing: host table, watch.requests.jsonl, signed watch.attestation.dsse.json (tests/test_watch.sh)
 
 # run any agent command with only localhost allowed, and get a signed attestation
 OLLAMA_API_BASE=http://127.0.0.1:11434 bash silent/silent.sh \
@@ -70,6 +71,7 @@ You need bash, python3 and git. `silent.sh` also needs `mitmdump` on PATH (`uv t
 |---|---|---|
 | **Guardrails** | `install.sh` into any project that uses Claude Code hooks | Kill-tree, CPU and GPU leases, a stash ban, and claim receipts, all enforced by hooks on the default path. The CLI is `stillherd status`. |
 | **Silent runs** | `silent/silent.sh aider ...` (any agent, any model server) | Every host outside your local allowlist is refused and every attempt is logged. The run ends with an ed25519-signed attestation of the hosts contacted and the bytes sent. |
+| **Watch runs** | `stillherd watch <cmd>` | The command runs normally. You get a table of external hosts (requests, bytes out, rule), a request log with no bodies, and a signed attestation marked mode observe. |
 | **Receipts for leaving SaaS** | `selfhost/selfhost.sh postman`, `exitkits/postman-to-hoppscotch/kit.sh` | An open replacement boots, your data is imported, and the whole window is attested. |
 | **Egress tables** | `egress/run_tool.sh` | A reproducible record of what a named AI coding tool sends out during a fixed scripted session. |
 
