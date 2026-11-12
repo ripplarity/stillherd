@@ -30,12 +30,12 @@ fi
 
 # (b) no requests: empty-table message
 SILENT_PORT="$(freeport)" out="$(bash "$HERE/stillherd" watch true 2>&1)"; rc=$?
-[ $rc -eq 0 ] && printf '%s' "$out" | grep -q "no external requests observed" && ok "(b) empty table message" || bad "(b) rc=$rc $out"
+[ $rc -eq 0 ] && printf '%s' "$out" | grep -q "no traffic reached the proxy: the command may ignore proxy settings" && ok "(b) empty table message names the proxy-bypass possibility" || bad "(b) rc=$rc $out"
 cp "$T/watch.requests.jsonl" "$T/b.jsonl"; cp "$T/watch.attestation.dsse.json" "$T/b.dsse.json" 2>/dev/null
 
 # (c) non-zero exit passed through, table still printed
 SILENT_PORT="$(freeport)" out="$(bash "$HERE/stillherd" watch bash -c 'exit 7' 2>&1)"; rc=$?
-[ $rc -eq 7 ] && printf '%s' "$out" | grep -q "no external requests observed" && ok "(c) exit 7 passed through, table printed" || bad "(c) rc=$rc $out"
+[ $rc -eq 7 ] && printf '%s' "$out" | grep -q "no traffic reached the proxy" && ok "(c) exit 7 passed through, table printed" || bad "(c) rc=$rc $out"
 
 # (d) the log has only metadata fields, never bodies
 if [ -f "$T/a.jsonl" ]; then L="$T/a.jsonl"; else L="$T/b.jsonl"; fi
@@ -54,6 +54,35 @@ if [ -f "$D" ]; then
   case "$out" in *VALID-SIGNATURE*OK) ok "(e) attestation verifies" ;; *) bad "(e) verify: $out" ;; esac
   m="$("$PY" -I -c 'import json,base64,sys;p=json.loads(base64.b64decode(json.load(open(sys.argv[1]))["payload"]))["predicate"];print(p["mode"],p["enforcement"])' "$D")"
   [ "$m" = "observe none" ] && ok "(e) predicate says mode observe, enforcement none" || bad "(e) predicate mode: $m"
+  # silent-claim fields are ABSENT in observe mode; renamed byte count present; proxy_saw_traffic recorded
+  "$PY" -I -c 'import json,base64,sys;p=json.loads(base64.b64decode(json.load(open(sys.argv[1]))["payload"]))["predicate"]
+bad=[k for k in ("allowlist","external_attempts","external_bytes_sent","blocked_request_bytes") if k in p]
+sys.exit(1 if bad or "observed_bytes_out" not in p or "proxy_saw_traffic" not in p else 0)' "$D" && ok "(e) observe attestation omits allowlist/external_attempts/external_bytes_sent/blocked_request_bytes" || bad "(e) silent-claim fields present"
+  saw="$("$PY" -I -c 'import json,base64,sys;print(json.loads(base64.b64decode(json.load(open(sys.argv[1]))["payload"]))["predicate"]["proxy_saw_traffic"])' "$T/b.dsse.json")"
+  [ "$saw" = "False" ] && ok "(b) no-request run records proxy_saw_traffic false" || bad "(b) proxy_saw_traffic=$saw"
+  # verify.sh prints the mode line; --require-mode
+  out="$(bash "$HERE/silent/verify.sh" "$T/watch.attestation.dsse.json" "$KID" 2>&1)"
+  case "$out" in *"mode: observe (nothing was blocked; this is a record, not a containment claim)"*) ok "(e) verify prints the observe mode line" ;; *) bad "(e) mode line: $out" ;; esac
+  out="$(bash "$HERE/silent/verify.sh" "$T/watch.attestation.dsse.json" "$KID" --require-mode silent 2>&1)"; rc=$?
+  [ $rc -ne 0 ] && printf '%s' "$out" | grep -q "require-mode silent not met" && ok "(e) --require-mode silent rejects an observe attestation" || bad "(e) require silent rc=$rc $out"
+  bash "$HERE/silent/verify.sh" "$T/watch.attestation.dsse.json" "$KID" --require-mode observe >/dev/null 2>&1 && ok "(e) --require-mode observe accepts it" || bad "(e) require observe"
+  # hand-edited relabel (mode silent, not re-signed) fails on the signature
+  "$PY" -I -c 'import json,base64,sys
+d=json.load(open(sys.argv[1])); st=json.loads(base64.b64decode(d["payload"])); st["predicate"]["mode"]="silent"
+d["payload"]=base64.b64encode(json.dumps(st).encode()).decode(); json.dump(d,open(sys.argv[2],"w"))' "$T/watch.attestation.dsse.json" "$T/relabel.dsse.json"
+  bash "$HERE/silent/verify.sh" "$T/relabel.dsse.json" "$KID" >/dev/null 2>&1 && bad "(e) relabelled attestation accepted" || ok "(e) hand-edited relabel (observe -> silent) fails the signature"
+  # consistently SIGNED but inconsistent payloads fail the consistency check
+  for BADMODE in silent observe; do
+    SILENT_KEY="$T/k.pem" "$PY" -I -c 'import json,base64,sys
+sys.path.insert(0,sys.argv[3]); from dsse import make_envelope, load_key
+d=json.load(open(sys.argv[1])); st=json.loads(base64.b64decode(d["payload"])); p=st["predicate"]
+if sys.argv[4]=="silent": p["mode"]="silent"            # mode silent + observed_external present
+else: p["external_attempts"]=[]                         # mode observe + a silent-claim field present
+json.dump(make_envelope(st,load_key()),open(sys.argv[2],"w"))' "$T/watch.attestation.dsse.json" "$T/inc_$BADMODE.dsse.json" "$HERE/silent" "$BADMODE"
+    cp "$T/inc_$BADMODE.dsse.json" "$T/chk.dsse.json"
+    out="$(bash "$HERE/silent/verify.sh" "$T/chk.dsse.json" "$KID" 2>&1)"; rc=$?
+    [ $rc -ne 0 ] && printf '%s' "$out" | grep -q "^FAIL" && ok "(e) signed but inconsistent payload ($BADMODE) fails the consistency check" || bad "(e) inconsistent $BADMODE rc=$rc $out"
+  done
 else
   echo "info (e): no attestation written (documented fallback: log and table only); cryptography package missing?"; bad "(e) no attestation file"
 fi

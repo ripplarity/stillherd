@@ -64,18 +64,21 @@ predicate = {
     },
     "cmd": cmd,
     "exit_code": int(exit_code),
-    "allowlist": sorted(allowset),
-    "external_attempts": attempts,
-    "external_bytes_sent": forwarded_external,
-    "blocked_request_bytes": blocked_bytes,
     "mode": mode,
     "pubkey_hex": pub.hex(),
 }
 if mode == "observe":
-    # observe-mode reading of the shared fields: nothing was blocked, so external_attempts and blocked_request_bytes are
-    # empty/0 BY DESIGN; the hosts that were reached are in observed_external (host, requests, bytes_out, rule).
+    # observe mode makes NO containment claim: allowlist, external_attempts, external_bytes_sent and
+    # blocked_request_bytes are ABSENT (not empty or zero), so a consumer cannot read a clean-looking value.
     predicate["enforcement"] = "none"
     predicate["observed_external"] = observed
+    predicate["observed_bytes_out"] = forwarded_external
+    predicate["proxy_saw_traffic"] = len(rows) > 0  # any request at all, loopback included
+else:
+    predicate["allowlist"] = sorted(allowset)
+    predicate["external_attempts"] = attempts
+    predicate["external_bytes_sent"] = forwarded_external
+    predicate["blocked_request_bytes"] = blocked_bytes
 statement = {
     "_type": "https://in-toto.io/Statement/v1",
     "subject": [

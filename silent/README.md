@@ -29,3 +29,6 @@ Does not prove:
 Legacy format: attestations written before the shared format (format ids `corral-silent-1`, `stillherd-silent-1`; four are committed and left untouched) are still verified by `verify.sh`, which prints `OK (legacy format)`. New runs write only the DSSE file. Transparency-log (Rekor) anchoring is OFF and founder-gated; a receipt means a log inclusion proof, which these files do not carry.
 
 Tests: `bash tests/test_attest.sh`.
+
+`mode` (predicate): `silent` (allowlist enforced), `observe` (from `watch.sh`: nothing blocked, a record only; the allowlist and blocked-request fields are absent), or absent (written before the field existed: treated as silent). `verify.sh` prints the mode and rejects a payload whose fields contradict it.
+`bash verify.sh FILE [keyid] --require-mode silent|observe` exits non-zero (8) when the mode differs; an unlabelled legacy attestation satisfies `silent` only.

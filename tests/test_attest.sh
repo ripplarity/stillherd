@@ -9,11 +9,17 @@ ok() { pass=$((pass+1)); echo "ok   $1"; }
 bad() { fail=$((fail+1)); echo "FAIL $1"; }
 out="$(bash "$HERE/silent/verify.sh" "$HERE/silent/attestation.json" 2>&1)"
 case "$out" in *"legacy format"*) ok "legacy attestation verifies" ;; *) bad "legacy: $out" ;; esac
+case "$out" in *"mode: silent (legacy, unlabelled)"*) ok "legacy attestation prints the legacy mode line" ;; *) bad "legacy mode line: $out" ;; esac
+bash "$HERE/silent/verify.sh" "$HERE/silent/attestation.json" --require-mode silent >/dev/null 2>&1 && ok "legacy satisfies --require-mode silent" || bad "legacy --require-mode silent"
+bash "$HERE/silent/verify.sh" "$HERE/silent/attestation.json" --require-mode observe >/dev/null 2>&1 && bad "legacy accepted for --require-mode observe" || ok "legacy rejected for --require-mode observe"
 printf '{"host":"example.invalid","path":"","ts":1.0,"action":"blocked","bytes":0}\n' > "$T/silent.log.jsonl"
 SILENT_KEY="$T/k.pem" "$PY" "$HERE/silent/attest.py" "$T/silent.log.jsonl" "$T/a.dsse.json" 2026-01-01T00:00:00Z 2026-01-01T00:00:05Z 0 127.0.0.1 -- true >/dev/null || bad "write"
 KID="$("$PY" -I -c 'import json,base64,sys,hashlib;d=json.load(open(sys.argv[1]));print(d["signatures"][0]["keyid"])' "$T/a.dsse.json")"
 out="$(bash "$HERE/silent/verify.sh" "$T/a.dsse.json" "$KID" 2>&1)"
 case "$out" in *VALID-SIGNATURE*OK) ok "new attestation verifies with pinned keyid" ;; *) bad "new: $out" ;; esac
+case "$out" in *"mode: silent"*) ok "silent attestation prints mode: silent" ;; *) bad "mode line: $out" ;; esac
+bash "$HERE/silent/verify.sh" "$T/a.dsse.json" "$KID" --require-mode silent >/dev/null 2>&1 && ok "--require-mode silent accepts a silent attestation" || bad "--require-mode silent"
+bash "$HERE/silent/verify.sh" "$T/a.dsse.json" "$KID" --require-mode observe >/dev/null 2>&1 && bad "silent accepted for --require-mode observe" || ok "--require-mode observe rejects a silent attestation"
 WRONG="$(printf '%064d' 1)"
 bash "$HERE/silent/verify.sh" "$T/a.dsse.json" "$WRONG" >/dev/null 2>&1 && bad "wrong keyid accepted" || ok "wrong keyid rejected"
 echo tamper >> "$T/silent.log.jsonl"

@@ -55,6 +55,8 @@ def summarize(rows):
 
 
 def table(rows):
+    if not rows:
+        return "no traffic reached the proxy: the command may ignore proxy settings"
     s = summarize(rows)
     local = sum(1 for r in rows if is_local(r["host"]))
     if not s:
