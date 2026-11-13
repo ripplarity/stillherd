@@ -132,6 +132,19 @@ out="$(SILENT_MODE= bash "$HERE/silent/silent.sh" true 2>&1)"; rc=$?
 out="$(SILENT_MODE= SILENT_KEY="$T/k.pem" "$PY" "$HERE/silent/attest.py" "$T/e.jsonl" "$T/e.dsse.json" 2026-01-01T00:00:00Z 2026-01-01T00:00:05Z 0 "" -- true 2>&1)"; rc=$?
 [ $rc -ne 0 ] && [ ! -f "$T/e.dsse.json" ] && printf '%s' "$out" | grep -q "nothing signed" && ok "N1 attest.py refuses an empty mode and signs nothing" || bad "N1 attest rc=$rc $out"
 
+# A1: silent mode, a blocked plain-http request with a query string: path stored without it, had_query true
+mkdir -p "$T/sr"
+SILENT_OUT="$T/sr" SILENT_PORT="$(freeport)" bash "$HERE/silent/silent.sh" bash -c 'curl -s "http://example.com/a?api_key=SECRETTOKEN123" -o /dev/null' >/dev/null 2>&1
+if [ -f "$T/sr/attestation.dsse.json" ]; then
+  "$PY" -I -c 'import json,base64,sys
+d=json.load(open(sys.argv[1])); open(sys.argv[2],"w").write(base64.b64decode(d["payload"]).decode())' "$T/sr/attestation.dsse.json" "$T/sr/payload.json"
+  grep -q SECRETTOKEN123 "$T/sr/silent.log.jsonl" "$T/sr/attestation.dsse.json" "$T/sr/payload.json" && bad "A1 query secret found in the silent log or attestation" || ok "A1 no query-string secret in the silent log, envelope or payload"
+  grep -q '"had_query": true' "$T/sr/silent.log.jsonl" && grep -q '"path": "/a"' "$T/sr/silent.log.jsonl" && ok "A1 blocked request logged with path /a and had_query true" || bad "A1 log row: $(cat "$T/sr/silent.log.jsonl")"
+  "$PY" -I -c 'import json,sys
+p=json.load(open(sys.argv[1]))["predicate"]; a=p["external_attempts"]
+sys.exit(0 if a and a[0]["host"]=="example.com" and a[0]["path"]=="/a" and a[0].get("had_query") is True else 1)' "$T/sr/payload.json" && ok "A1 external_attempts carries the path without the query" || bad "A1 external_attempts: $(head -c 500 "$T/sr/payload.json")"
+else bad "A1 silent run wrote no attestation"; fi
+
 # failure messages
 out="$(env PATH=/nonexistent HOME=/nonexistent SILENT_MODE=observe "$BASH" "$HERE/silent/silent.sh" true 2>&1)"; rc=$?
 [ $rc -eq 1 ] && printf '%s' "$out" | grep -q "uv tool install mitmproxy" && ok "missing mitmdump: says how to install" || bad "mitmdump refusal rc=$rc $out"

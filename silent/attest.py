@@ -37,7 +37,7 @@ if mode == "observe":
     blocked_bytes = 0
 else:
     attempts = [
-        {"host": r["host"], "path": r["path"], "ts": r["ts"]}
+        {"host": r["host"], "path": r["path"], "ts": r["ts"], **({"had_query": r["had_query"]} if "had_query" in r else {})}
         for r in rows
         if r["action"] in ("blocked", "tls-failed")
     ]

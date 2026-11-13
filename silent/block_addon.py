@@ -47,11 +47,14 @@ def request(flow: http.HTTPFlow):
     r = flow.request
     h = r.pretty_host
     n = len(r.raw_content or b"")
+    path = r.path.split("?", 1)[0]  # query strings can hold credentials: never stored
+    had_query = "?" in r.path
     if _allowed(h):
         _write(
             {
                 "host": h,
-                "path": r.path,
+                "path": path,
+                "had_query": had_query,
                 "method": r.method,
                 "bytes": n,
                 "action": "allowed",
@@ -62,7 +65,8 @@ def request(flow: http.HTTPFlow):
         _write(
             {
                 "host": h,
-                "path": r.path,
+                "path": path,
+                "had_query": had_query,
                 "method": r.method,
                 "bytes": n,
                 "action": "blocked",

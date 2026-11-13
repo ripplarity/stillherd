@@ -77,6 +77,9 @@ if [ -f "$T/k.dsse.json" ]; then
   KIDK="$("$PY" -I -c 'import json,sys;print(json.load(open(sys.argv[1]))["signatures"][0]["keyid"])' "$T/k.dsse.json")"
   out="$(bash "$HERE/silent/verify.sh" "$T/k.dsse.json" "$KIDK" 2>&1)"
   case "$out" in *"note: full command line is recorded in this file"*OK) ok "opt-in file verifies and prints the note" ;; *) bad "opt-in verify: $out" ;; esac
+  "$PY" -I -c 'import json,sys,re;c=json.load(open(sys.argv[1]))["predicate"]["cmd"]
+ok=(c[2]=="echo TOKEN=SECRETX9 key=/home/alice/k" and re.match(r"^--config=.*alice/secret\.cfg$",c[3]) and re.match(r"^TOKEN=.*alice/t$",c[4]))
+sys.exit(0 if ok else 1)' "$T/k.payload.json" && ok "opt-in pins the real behaviour: -c strings, --flag=/path and KEY=/path are kept as given (only bare path arguments are reduced)" || bad "opt-in scrub behaviour changed: $(head -c 500 "$T/k.payload.json")"
 else bad "opt-in attestation not written"; fi
 # an already-issued file with the old shape (full argv, no argc) still verifies
 SILENT_KEY="$T/k.pem" "$PY" -c 'import json,base64,sys
@@ -86,7 +89,7 @@ st["predicate"].pop("argc",None); st["predicate"]["cmd"]=["bash","-c","echo old"
 json.dump(make_envelope(st,load_key()),open(sys.argv[3],"w"))' "$T/d.dsse.json" "$HERE/silent" "$T/old.dsse.json" 2>/dev/null
 if [ -f "$T/old.dsse.json" ]; then
   out="$(bash "$HERE/silent/verify.sh" "$T/old.dsse.json" "$KIDD" 2>&1)"
-  case "$out" in *"mode: silent"*OK) ok "old-shape attestation (full argv, no argc) still verifies" ;; *) bad "old shape: $out" ;; esac
+  case "$out" in *"mode: silent"*"note: full command line is recorded in this file"*OK) ok "old-shape attestation (full argv, no argc) still verifies and gets the note" ;; *) bad "old shape: $out" ;; esac
 else skip=$((skip+1)); echo "skip: old-shape fixture could not be built; NOT counted as passed"; fi
 SPEC="$HERE/../attest-spec/attest_verify.py"
 if [ -f "$SPEC" ]; then
