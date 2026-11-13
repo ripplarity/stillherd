@@ -142,6 +142,10 @@ def main(a):
     ptype, pred = load(path)
     rc, label, err = check(ptype, pred, req)
     print(label)
+    if pred.get("argv_recorded") is True:
+        print("note: full command line is recorded in this file")
+    elif "argv_recorded" in pred:
+        rc, err = 4, "FAIL: argv_recorded must be the boolean true when present"
     if err:
         print(err, file=sys.stderr)
     return rc

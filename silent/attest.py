@@ -69,9 +69,6 @@ predicate = {
     "pubkey_hex": pub.hex(),
 }
 if mode == "observe":
-    # the command line can hold credentials (tokens in -c strings, --flag=/home/user/x): record only argv[0]'s basename and argc
-    predicate["cmd"] = [os.path.basename(sys.argv[8].replace("\\", "/"))] if len(sys.argv) > 8 else []
-    predicate["argc"] = len(sys.argv) - 8
     # observe mode makes NO containment claim: allowlist, external_attempts, external_bytes_sent and
     # blocked_request_bytes are ABSENT (not empty or zero), so a consumer cannot read a clean-looking value.
     predicate["enforcement"] = "none"
@@ -79,11 +76,18 @@ if mode == "observe":
     predicate["observed_bytes_out"] = forwarded_external
     predicate["proxy_saw_traffic"] = len(rows) > 0  # any request at all, loopback included
 else:
-    predicate["cmd"] = cmd
     predicate["allowlist"] = sorted(allowset)
     predicate["external_attempts"] = attempts
     predicate["external_bytes_sent"] = forwarded_external
     predicate["blocked_request_bytes"] = blocked_bytes
+# The command line can hold credentials (tokens in -c strings, --flag=/home/user/x). Both modes record only the basename
+# of argv[0] and the argument count. SILENT_KEEP_ARGV=1 opts in to the scrubbed full argv and marks the file.
+_argv = sys.argv[8:]
+predicate["cmd"] = [os.path.basename(_argv[0].replace("\\", "/"))] if _argv else []
+predicate["argc"] = len(_argv)
+if os.environ.get("SILENT_KEEP_ARGV") == "1":
+    predicate["cmd"] = cmd
+    predicate["argv_recorded"] = True
 statement = {
     "_type": "https://in-toto.io/Statement/v1",
     "subject": [

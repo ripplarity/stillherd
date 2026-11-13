@@ -49,9 +49,45 @@ echo tamper >> "$T/silent.log.jsonl"
 bash "$HERE/silent/verify.sh" "$T/a.dsse.json" "$KID" >/dev/null 2>&1 && bad "tampered log accepted" || ok "tampered subject rejected"
 # argv paths are reduced to basenames in the signed payload
 : > "$T/empty.jsonl"
-SILENT_KEY="$T/k.pem" "$PY" "$HERE/silent/attest.py" "$T/empty.jsonl" "$T/p.dsse.json" 2026-01-01T00:00:00Z 2026-01-01T00:00:05Z 0 127.0.0.1 -- bash "C:/Users/someone/AppData/Local/Temp/tmp.AbC/agent.sh" /tmp/xyz.123/a.sh --flag https://example.com/x >/dev/null
+SILENT_KEEP_ARGV=1 SILENT_KEY="$T/k.pem" "$PY" "$HERE/silent/attest.py" "$T/empty.jsonl" "$T/p.dsse.json" 2026-01-01T00:00:00Z 2026-01-01T00:00:05Z 0 127.0.0.1 -- bash "C:/Users/someone/AppData/Local/Temp/tmp.AbC/agent.sh" /tmp/xyz.123/a.sh --flag https://example.com/x >/dev/null
 pl="$("$PY" -I -c 'import json,base64,sys;print(json.loads(base64.b64decode(json.load(open(sys.argv[1]))["payload"]))["predicate"]["cmd"])' "$T/p.dsse.json")"
 case "$pl" in *Users*|*Temp*|*tmp.*|*xyz*) bad "path leaked in cmd: $pl" ;; *"'agent.sh', 'a.sh', '--flag', 'https://example.com/x'"*) ok "argv paths reduced to basename" ;; *) bad "cmd unexpected: $pl" ;; esac
+# argv: default records only the command name and argc; opt-in keeps the scrubbed argv and says so
+printf '{"host":"example.invalid","path":"","ts":1.0,"action":"blocked","bytes":0}\n' > "$T/s.log.jsonl"
+SECRETS="SECRETX9 /home/alice"
+runatt() { # outfile [env...]
+  local o="$1"; shift
+  env "$@" SILENT_KEY="$T/k.pem" "$PY" "$HERE/silent/attest.py" "$T/s.log.jsonl" "$T/$o" 2026-01-01T00:00:00Z 2026-01-01T00:00:05Z 0 127.0.0.1 -- "C:\Program Files\Git\bin\bash.exe" -c "echo TOKEN=SECRETX9 key=/home/alice/k" --config=/home/alice/secret.cfg TOKEN=/home/alice/t >/dev/null
+}
+dec() { "$PY" -I -c 'import json,base64,sys;print(base64.b64decode(json.load(open(sys.argv[1]))["payload"]).decode())' "$1"; }
+runatt d.dsse.json SILENT_X=1; KIDD="$("$PY" -I -c 'import json,sys;print(json.load(open(sys.argv[1]))["signatures"][0]["keyid"])' "$T/d.dsse.json")"
+if [ -f "$T/d.dsse.json" ]; then
+  dec "$T/d.dsse.json" > "$T/d.payload.json"
+  leak=0; for sx in SECRETX9 /home/alice secret.cfg; do grep -q -e "$sx" "$T/s.log.jsonl" "$T/d.dsse.json" "$T/d.payload.json" && leak=1; done
+  [ $leak -eq 0 ] && ok "default silent attestation: no secret or path from argv in the log, envelope or payload" || bad "argv secret leaked by default"
+  "$PY" -I -c 'import json,sys;p=json.load(open(sys.argv[1]))["predicate"];sys.exit(0 if p["cmd"]==["bash.exe"] and p["argc"]==5 and "argv_recorded" not in p else 1)' "$T/d.payload.json" && ok "default silent attestation: cmd is the basename (Windows path, spaces) and argc" || bad "default cmd shape: $(head -c 400 "$T/d.payload.json")"
+  out="$(bash "$HERE/silent/verify.sh" "$T/d.dsse.json" "$KIDD" 2>&1)"
+  case "$out" in *VALID-SIGNATURE*"mode: silent"*OK) ok "default silent attestation verifies, no argv note" ;; *) bad "default verify: $out" ;; esac
+  printf '%s' "$out" | grep -q "note: full command line" && bad "note printed for a default file"
+else bad "default attestation not written"; fi
+runatt k.dsse.json SILENT_KEEP_ARGV=1
+if [ -f "$T/k.dsse.json" ]; then
+  dec "$T/k.dsse.json" > "$T/k.payload.json"
+  "$PY" -I -c 'import json,sys;p=json.load(open(sys.argv[1]))["predicate"];sys.exit(0 if p["cmd"][0]=="bash.exe" and len(p["cmd"])==5 and p["argv_recorded"] is True else 1)' "$T/k.payload.json" && ok "opt-in keeps the scrubbed argv, basename first, argv_recorded true" || bad "opt-in shape: $(head -c 400 "$T/k.payload.json")"
+  KIDK="$("$PY" -I -c 'import json,sys;print(json.load(open(sys.argv[1]))["signatures"][0]["keyid"])' "$T/k.dsse.json")"
+  out="$(bash "$HERE/silent/verify.sh" "$T/k.dsse.json" "$KIDK" 2>&1)"
+  case "$out" in *"note: full command line is recorded in this file"*OK) ok "opt-in file verifies and prints the note" ;; *) bad "opt-in verify: $out" ;; esac
+else bad "opt-in attestation not written"; fi
+# an already-issued file with the old shape (full argv, no argc) still verifies
+SILENT_KEY="$T/k.pem" "$PY" -c 'import json,base64,sys
+sys.path.insert(0,sys.argv[2]); from dsse import make_envelope, load_key
+d=json.load(open(sys.argv[1])); st=json.loads(base64.b64decode(d["payload"]))
+st["predicate"].pop("argc",None); st["predicate"]["cmd"]=["bash","-c","echo old"]
+json.dump(make_envelope(st,load_key()),open(sys.argv[3],"w"))' "$T/d.dsse.json" "$HERE/silent" "$T/old.dsse.json" 2>/dev/null
+if [ -f "$T/old.dsse.json" ]; then
+  out="$(bash "$HERE/silent/verify.sh" "$T/old.dsse.json" "$KIDD" 2>&1)"
+  case "$out" in *"mode: silent"*OK) ok "old-shape attestation (full argv, no argc) still verifies" ;; *) bad "old shape: $out" ;; esac
+else skip=$((skip+1)); echo "skip: old-shape fixture could not be built; NOT counted as passed"; fi
 SPEC="$HERE/../attest-spec/attest_verify.py"
 if [ -f "$SPEC" ]; then
   # the shipped verifier must be byte-identical to the spec REVISION this repo tracks (pinned below),
