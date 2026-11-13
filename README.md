@@ -71,7 +71,7 @@ You need bash, python3 and git. `silent.sh` also needs `mitmdump` on PATH (`uv t
 |---|---|---|
 | **Guardrails** | `install.sh` into any project that uses Claude Code hooks | Kill-tree, CPU and GPU leases, a stash ban, and claim receipts, all enforced by hooks on the default path. The CLI is `stillherd status`. |
 | **Silent runs** | `silent/silent.sh aider ...` (any agent, any model server) | Every host outside your local allowlist is refused and every attempt is logged. The run ends with an ed25519-signed attestation of the hosts contacted and the bytes sent. |
-| **Watch runs** | `stillherd watch <cmd>` | The command runs normally. You get a table of external hosts (requests, bytes out, rule), a request log with no bodies, and a signed attestation marked mode observe. |
+| **Watch runs** | `stillherd watch <cmd>` | The command runs normally. You get a table of external hosts (requests, bytes out, rule), a request log with no bodies, and a signed attestation marked mode observe. Only the command name and argument count are recorded, and query strings are dropped. |
 | **Receipts for leaving SaaS** | `selfhost/selfhost.sh postman`, `exitkits/postman-to-hoppscotch/kit.sh` | An open replacement boots, your data is imported, and the whole window is attested. |
 | **Egress tables** | `egress/run_tool.sh` | A reproducible record of what a named AI coding tool sends out during a fixed scripted session. |
 

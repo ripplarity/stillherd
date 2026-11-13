@@ -40,7 +40,7 @@ SILENT_PORT="$(freeport)" out="$(bash "$HERE/stillherd" watch bash -c 'exit 7' 2
 # (d) the log has only metadata fields, never bodies
 if [ -f "$T/a.jsonl" ]; then L="$T/a.jsonl"; else L="$T/b.jsonl"; fi
 "$PY" -I -c 'import json,sys
-ok={"ts","tool","version","host","path","method","bytes","content_type","canary"}
+ok={"ts","tool","version","host","path","method","bytes","content_type","canary","had_query"}
 rows=[json.loads(l) for l in open(sys.argv[1]) if l.strip()]
 bad=[k for r in rows for k in r if k not in ok or k in ("body","content","text","response","headers","raw")]
 sys.exit(1 if bad else 0)' "$L" && ok "(d) log rows carry no body/header/response fields" || bad "(d) unexpected fields in $L"
@@ -73,12 +73,13 @@ d["payload"]=base64.b64encode(json.dumps(st).encode()).decode(); json.dump(d,ope
   bash "$HERE/silent/verify.sh" "$T/relabel.dsse.json" "$KID" >/dev/null 2>&1 && bad "(e) relabelled attestation accepted" || ok "(e) hand-edited relabel (observe -> silent) fails the signature"
   # consistently SIGNED but inconsistent payloads fail the consistency check
   for BADMODE in silent observe; do
-    SILENT_KEY="$T/k.pem" "$PY" -I -c 'import json,base64,sys
+    SILENT_KEY="$T/k.pem" "$PY" -c 'import json,base64,sys
 sys.path.insert(0,sys.argv[3]); from dsse import make_envelope, load_key
 d=json.load(open(sys.argv[1])); st=json.loads(base64.b64decode(d["payload"])); p=st["predicate"]
 if sys.argv[4]=="silent": p["mode"]="silent"            # mode silent + observed_external present
 else: p["external_attempts"]=[]                         # mode observe + a silent-claim field present
 json.dump(make_envelope(st,load_key()),open(sys.argv[2],"w"))' "$T/watch.attestation.dsse.json" "$T/inc_$BADMODE.dsse.json" "$HERE/silent" "$BADMODE"
+    if [ ! -f "$T/inc_$BADMODE.dsse.json" ]; then skip=$((skip+1)); echo "skip (e) inconsistent payload ($BADMODE): fixture could not be built (cryptography missing for this python?); NOT counted as passed"; continue; fi
     cp "$T/inc_$BADMODE.dsse.json" "$T/chk.dsse.json"
     out="$(bash "$HERE/silent/verify.sh" "$T/chk.dsse.json" "$KID" 2>&1)"; rc=$?
     [ $rc -ne 0 ] && printf '%s' "$out" | grep -q "^FAIL" && ok "(e) signed but inconsistent payload ($BADMODE) fails the consistency check" || bad "(e) inconsistent $BADMODE rc=$rc $out"
@@ -86,6 +87,50 @@ json.dump(make_envelope(st,load_key()),open(sys.argv[2],"w"))' "$T/watch.attesta
 else
   echo "info (e): no attestation written (documented fallback: log and table only); cryptography package missing?"; bad "(e) no attestation file"
 fi
+
+# F1: argument parsing fails closed, before any verification output
+if [ -f "$T/watch.attestation.dsse.json" ]; then
+  A="$T/watch.attestation.dsse.json"
+  chk() { # name expected_rc args...
+    local n="$1" want="$2"; shift 2
+    out="$(timeout 20 bash "$HERE/silent/verify.sh" "$@" 2>&1 </dev/null)"; rc=$?
+    if [ $rc -eq "$want" ] && ! printf '%s\n' "$out" | grep -q '^OK'; then ok "F1 $n: rc $want, no OK line"; else bad "F1 $n: rc=$rc (want $want) $out"; fi
+  }
+  chk "equals form is honoured (observe file, silent required)" 8 "$A" "$KID" --require-mode=silent
+  chk "empty value" 2 "$A" "$KID" --require-mode ""
+  chk "empty value, equals form" 2 "$A" "$KID" --require-mode=
+  chk "repeated flag" 2 "$A" "$KID" --require-mode silent --require-mode observe
+  chk "trailing flag with no value (no hang)" 2 "$A" "$KID" --require-mode
+  chk "unknown flag" 2 "$A" "$KID" --bogus
+  chk "third positional" 2 "$A" "$KID" extra
+  chk "flag before the file" 8 --require-mode silent "$A" "$KID"
+  bash "$HERE/silent/verify.sh" "$A" "$KID" --require-mode=observe >/dev/null 2>&1 </dev/null && ok "F1 equals form accepts a matching mode" || bad "F1 equals form observe"
+fi
+
+# F3: no credentials in the log or the signed payload (query string, bash -c wrapper, bearer token)
+SECRET='https://example.com/?api_key=SECRETTOKEN123'
+if [ $HAVE_NET -eq 1 ]; then
+  SILENT_PORT="$(freeport)" bash "$HERE/stillherd" watch bash -c "curl -s --ssl-no-revoke --cacert \"\$SSL_CERT_FILE\" \"$SECRET\" -H \"Authorization: Bearer sk-LIVE123\" -o /dev/null" >/dev/null 2>&1
+else
+  SILENT_PORT="$(freeport)" bash "$HERE/stillherd" watch bash -c "echo $SECRET Bearer sk-LIVE123 > /dev/null" >/dev/null 2>&1
+  echo "info F3: no network, so only the command-line half is covered"
+fi
+"$PY" -I -c 'import json,base64,sys
+d=json.load(open(sys.argv[1])); open(sys.argv[2],"w").write(base64.b64decode(d["payload"]).decode())' "$T/watch.attestation.dsse.json" "$T/payload.json"
+if grep -q -e SECRETTOKEN123 -e sk-LIVE123 -e Bearer "$T/watch.requests.jsonl" "$T/watch.attestation.dsse.json" "$T/payload.json"; then bad "F3 credential text found in log or attestation"; else ok "F3 no query string, token or bearer text in the log or the signed payload"; fi
+if [ $HAVE_NET -eq 1 ]; then
+  grep -q '"had_query": true' "$T/watch.requests.jsonl" && grep -q '"path": "/"' "$T/watch.requests.jsonl" && ok "F3 path stored without query, had_query true" || bad "F3 path/had_query: $(cat "$T/watch.requests.jsonl")"
+fi
+"$PY" -I -c 'import json,sys,base64
+p=json.loads(base64.b64decode(json.load(open(sys.argv[1]))["payload"]))["predicate"]
+sys.exit(0 if p["cmd"]==["bash"] and p["argc"]==3 else 1)' "$T/watch.attestation.dsse.json" && ok "F3 cmd is the command name only, plus argc" || bad "F3 cmd/argc: $(head -c 600 "$T/payload.json")"
+
+# N1: SILENT_MODE set but empty refuses (nothing signed)
+out="$(SILENT_MODE= bash "$HERE/silent/silent.sh" true 2>&1)"; rc=$?
+[ $rc -ne 0 ] && printf '%s' "$out" | grep -q "SILENT_MODE must be silent or observe" && ok "N1 empty SILENT_MODE refused by silent.sh" || bad "N1 empty mode rc=$rc $out"
+: > "$T/e.jsonl"; rm -f "$T/e.dsse.json"
+out="$(SILENT_MODE= SILENT_KEY="$T/k.pem" "$PY" "$HERE/silent/attest.py" "$T/e.jsonl" "$T/e.dsse.json" 2026-01-01T00:00:00Z 2026-01-01T00:00:05Z 0 "" -- true 2>&1)"; rc=$?
+[ $rc -ne 0 ] && [ ! -f "$T/e.dsse.json" ] && printf '%s' "$out" | grep -q "nothing signed" && ok "N1 attest.py refuses an empty mode and signs nothing" || bad "N1 attest rc=$rc $out"
 
 # failure messages
 out="$(env PATH=/nonexistent HOME=/nonexistent SILENT_MODE=observe "$BASH" "$HERE/silent/silent.sh" true 2>&1)"; rc=$?

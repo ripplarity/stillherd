@@ -21,6 +21,8 @@ rows = (
 )
 allowset = {h.strip().lower() for h in allow.split(",") if h.strip()}
 mode = os.environ.get("SILENT_MODE", "silent")
+if mode not in ("silent", "observe"):
+    sys.exit(f"attest: SILENT_MODE must be silent or observe, got {mode!r}; nothing signed")
 observed = []
 if mode == "observe":
     # watch.sh: nothing was blocked; rows come from egress/log_requests.py (no "action" field)
@@ -62,12 +64,14 @@ predicate = {
         "host_os": platform.system() or "unknown",
         "run_mode": os.environ.get("SILENT_RUN_MODE", "REAL"),
     },
-    "cmd": cmd,
     "exit_code": int(exit_code),
     "mode": mode,
     "pubkey_hex": pub.hex(),
 }
 if mode == "observe":
+    # the command line can hold credentials (tokens in -c strings, --flag=/home/user/x): record only argv[0]'s basename and argc
+    predicate["cmd"] = [os.path.basename(sys.argv[8].replace("\\", "/"))] if len(sys.argv) > 8 else []
+    predicate["argc"] = len(sys.argv) - 8
     # observe mode makes NO containment claim: allowlist, external_attempts, external_bytes_sent and
     # blocked_request_bytes are ABSENT (not empty or zero), so a consumer cannot read a clean-looking value.
     predicate["enforcement"] = "none"
@@ -75,6 +79,7 @@ if mode == "observe":
     predicate["observed_bytes_out"] = forwarded_external
     predicate["proxy_saw_traffic"] = len(rows) > 0  # any request at all, loopback included
 else:
+    predicate["cmd"] = cmd
     predicate["allowlist"] = sorted(allowset)
     predicate["external_attempts"] = attempts
     predicate["external_bytes_sent"] = forwarded_external

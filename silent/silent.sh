@@ -5,7 +5,8 @@
 #      SILENT_MODE=observe (set by watch.sh): log and forward everything, block nothing; print a host table; names default to
 #      watch.requests.jsonl / watch.attestation.dsse.json. If SILENT_PORT is busy the next free port is used.
 set -u
-MODE="${SILENT_MODE:-silent}"
+MODE="${SILENT_MODE-silent}"
+case "$MODE" in silent|observe) ;; *) echo "SILENT_MODE must be silent or observe, got '$MODE'" >&2; exit 2 ;; esac
 [ $# -ge 1 ] || { echo "usage: $([ "$MODE" = observe ] && echo watch || echo silent).sh <cmd...>" >&2; exit 2; }
 HERE="$(cd "$(dirname "$0")" && pwd)"
 export PATH="$HOME/.local/bin:$PATH"
@@ -20,7 +21,7 @@ done
 native() { if command -v cygpath >/dev/null 2>&1; then cygpath -m "$1"; else printf '%s' "$1"; fi; }
 if [ "$MODE" = observe ]; then
   LOG="$OUT/${SILENT_LOGNAME:-watch.requests.jsonl}"; ATT="$OUT/${SILENT_ATTNAME:-watch.attestation.dsse.json}"
-  ALLOW=""; ADDON="$HERE/../egress/log_requests.py"; ADDON_ENV=("EGRESS_OUT=$(native "$LOG")" "EGRESS_TOOL=watch")
+  ALLOW=""; ADDON="$HERE/../egress/log_requests.py"; ADDON_ENV=("EGRESS_OUT=$(native "$LOG")" "EGRESS_TOOL=watch" "EGRESS_STRIP_QUERY=1")
 else
   LOG="$OUT/${SILENT_LOGNAME:-silent.log.jsonl}"; ATT="$OUT/${SILENT_ATTNAME:-attestation.dsse.json}"
   ALLOW="127.0.0.1,localhost,::1${SILENT_ALLOW_EXTRA:+,$SILENT_ALLOW_EXTRA}"
